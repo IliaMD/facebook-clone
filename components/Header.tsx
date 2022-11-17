@@ -26,8 +26,8 @@ const Header = () => {
           />
         </div>
       </div>
-      {/* MidleSide */}
 
+      {/* MidleSide */}
       <div className="flex items-center space-x-7">
         <MdHome className="w-9 h-9" />
         <FiFlag className="w-7 h-7" />
@@ -35,6 +35,7 @@ const Header = () => {
         <BsCart3 className="w-7 h-7" />
         <GrGroup className="w-7 h-7" />
       </div>
+
       {/* RightSide */}
       <div className="flex space-x-6 items-center ml-4">
         <div className="md:flex space-x-6 hidden ">
