@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Header from "../components/Header";
+import Feed from "../components/Feed";
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
@@ -12,6 +13,8 @@ export default function Home() {
       </Head>
 
       <Header />
+
+      <Feed />
     </div>
   );
 }
