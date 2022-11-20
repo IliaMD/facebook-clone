@@ -2,29 +2,24 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import Post from "./Post";
-
-interface PostsType {
-  profileImg: string;
-  userName: string;
-  caption: string;
-  timestamp: any;
-  id: string;
-}
+import { PostType } from "./Post";
 
 const Posts = () => {
-  const [posts, setPosts] = useState<PostsType[]>([]);
-
-  console.log(posts);
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
     const unSubcribe = onSnapshot(
       query(collection(db, "posts"), orderBy("timestamp", "desc")),
       (snapshot) => {
         setPosts(
-          snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as PostsType[]
+          snapshot.docs.map((obj) => ({
+            id: obj.id,
+            ...obj.data(),
+          })) as PostType[]
         );
       }
     );
+
     return () => {
       unSubcribe();
     };
@@ -38,9 +33,10 @@ const Posts = () => {
             key={post.id}
             id={post.id}
             userName={post.userName}
-            userImg={post.profileImg}
+            profileImg={post.profileImg}
             caption={post.caption}
             timestamp={post.timestamp}
+            image={post.image}
           />
         ))}
       </div>

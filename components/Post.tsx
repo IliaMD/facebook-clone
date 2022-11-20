@@ -14,22 +14,30 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
 
-interface PostProps {
+export type PostType = {
   id: string;
   userName: string;
-  userImg: string;
+  profileImg: string;
   caption: string;
   timestamp: any;
-}
+  image: string;
+};
 
-const Post: FC<PostProps> = ({ id, userName, userImg, caption, timestamp }) => {
+const Post: FC<PostType> = ({
+  id,
+  userName,
+  profileImg,
+  caption,
+  timestamp,
+  image,
+}) => {
   return (
     <div className="bg-white rounded-[1rem] p-5 ">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex">
           <div className="w-12 h-12">
-            <img src={userImg} alt="user" className="rounded-full" />
+            <img src={profileImg} alt="user" className="rounded-full" />
           </div>
           <div className="ml-3">
             <p className="font-bold ">{userName}</p>
@@ -53,7 +61,7 @@ const Post: FC<PostProps> = ({ id, userName, userImg, caption, timestamp }) => {
 
       {/* Image */}
       <div className="-mx-5">
-        <Image src={car} alt="car" />
+        <img src={image} alt="Your post" />
       </div>
 
       {/* NumberOfLikes and Buttons */}

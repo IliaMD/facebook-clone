@@ -36,8 +36,11 @@ const Stories = () => {
         {/* My story */}
 
         {/* Stories */}
-        {stories.map((story) => (
-          <div className="flex relative w-[4.4rem] h-32  sm:w-24 sm:h-40">
+        {stories.map((story, index) => (
+          <div
+            className="flex relative w-[4.4rem] h-32  sm:w-24 sm:h-40"
+            key={index}
+          >
             <div className="flex">
               <Image
                 src={story.background}
