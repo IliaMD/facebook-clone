@@ -13,7 +13,6 @@ const CreatePost = () => {
   const { data: session } = useSession();
 
   const captionRef = useRef<HTMLInputElement>(null);
-  console.log(captionRef);
 
   const uploadPost = async () => {
     const docRef = await addDoc(collection(db, "posts"), {
