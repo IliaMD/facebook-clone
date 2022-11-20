@@ -1,5 +1,6 @@
-import React from "react";
+import React, { FC } from "react";
 import Image from "next/image";
+import Moment from "react-moment";
 
 import guy from "../assets/guy7.jpg";
 import dots from "../assets/dots.png";
@@ -13,19 +14,29 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
 
-const Post = () => {
+interface PostProps {
+  id: string;
+  userName: string;
+  userImg: string;
+  caption: string;
+  timestamp: any;
+}
+
+const Post: FC<PostProps> = ({ id, userName, userImg, caption, timestamp }) => {
   return (
     <div className="bg-white rounded-[1rem] p-5 ">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex">
           <div className="w-12 h-12">
-            <Image src={guy} alt="user" className="rounded-full" />
+            <img src={userImg} alt="user" className="rounded-full" />
           </div>
           <div className="ml-3">
-            <p className="font-bold ">Joe Doe</p>
+            <p className="font-bold ">{userName}</p>
             <div className="flex items-center">
-              <p className="text-xs">3 hours ago &#8226; </p>
+              <p className="text-xs">
+                <Moment fromNow>{timestamp?.toDate()}</Moment> &#8226;
+              </p>
               <BiWorld className="ml-1 shrink-0" />
             </div>
           </div>
@@ -37,7 +48,7 @@ const Post = () => {
 
       {/* Input */}
       <div className="mt-3 mb-2">
-        <p>My brand new car</p>
+        <p>{caption}</p>
       </div>
 
       {/* Image */}
