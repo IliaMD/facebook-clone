@@ -21,10 +21,12 @@ const CreatePost = () => {
 
   const [captionValue, setCaptionValue] = useState("");
   const [image, setImage] = useState<any>("");
+  const [loading, setLoading] = useState(false);
 
   const imageRef = useRef<HTMLInputElement>(null);
 
   const uploadPost = async () => {
+    setLoading(true);
     const docRef = await addDoc(collection(db, "posts"), {
       profileImg: session?.user.image,
       userName: session?.user.name,
@@ -43,6 +45,8 @@ const CreatePost = () => {
     });
 
     setCaptionValue("");
+    setImage("");
+    setLoading(false);
   };
 
   const addImagetoState = (e: any) => {
@@ -80,10 +84,21 @@ const CreatePost = () => {
 
           <div className="flex items-center bg-blue-500 px-3 rounded-full h-10 ml-4">
             <button onClick={uploadPost} className="font-bold text-white">
-              Post
+              {loading ? "Loading" : "Post"}
             </button>
           </div>
         </div>
+        {image ? (
+          <div className="m-2  w-full h-full" onClick={() => setImage("")}>
+            <img
+              src={image}
+              alt="your image"
+              className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
+            />
+          </div>
+        ) : (
+          ""
+        )}
         <div className="border-b mb-4 mt-2"></div>
 
         <div className="flex justify-between mx-3  pb-3">

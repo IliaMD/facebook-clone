@@ -1,12 +1,23 @@
-import React, { FC } from "react";
+import React, { FC, useState, useEffect } from "react";
 import Image from "next/image";
 import Moment from "react-moment";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 import guy from "../assets/guy7.jpg";
 import dots from "../assets/dots.png";
 import car from "../assets/c-class.jpg";
 import hearth from "../assets/hearth.png";
 import like from "../assets/like.png";
+import bluelike from "../assets/25like.png";
+import blacklike from "../assets/2unlike.png";
 import { BiLike, BiSmile } from "react-icons/bi";
 import { FaRegCommentAlt } from "react-icons/fa";
 import share from "../assets/share.png";
@@ -23,6 +34,11 @@ export type PostType = {
   image: string;
 };
 
+export type LikeType = {
+  username: string;
+  id: string;
+};
+
 const Post: FC<PostType> = ({
   id,
   userName,
@@ -31,8 +47,42 @@ const Post: FC<PostType> = ({
   timestamp,
   image,
 }) => {
+  const [hasLiked, setHasLiked] = useState(false);
+  const { data: session } = useSession();
+  const [likes, setLikes] = useState<LikeType[]>([]);
+
+  console.log([...likes]);
+
+  useEffect(() => {
+    onSnapshot(collection(db, "posts", id, "likes"), (snapshot) =>
+      setLikes(
+        snapshot.docs.map((obj) => ({
+          id: obj.id,
+          ...obj.data(),
+        })) as LikeType[]
+      )
+    );
+  }, [db]);
+
+  useEffect(() => {
+    setHasLiked(
+      likes.findIndex((like) => like.id === session?.user.uid) !== -1
+    );
+  }, [likes]);
+
+  const handleLikePost = async () => {
+    if (session != null) {
+      if (hasLiked) {
+        await deleteDoc(doc(db, "posts", id, "likes", session.user.uid));
+      } else {
+        await setDoc(doc(db, "posts", id, "likes", session.user.uid), {
+          username: session?.user.name,
+        });
+      }
+    }
+  };
   return (
-    <div className="bg-white rounded-[1rem] p-5 ">
+    <div className="bg-white rounded-[1rem] p-5 mt-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex">
@@ -84,8 +134,14 @@ const Post: FC<PostType> = ({
         </div>
         <div className="border-b my-2"></div>
         <div className="flex justify-between items-center mx-4">
-          <div className="flex items-center">
-            <BiLike className="w-6 h-6" />
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={handleLikePost}
+          >
+            <img
+              src={hasLiked ? bluelike.src : blacklike.src}
+              className="w-6 h-6"
+            />
             <p className="pl-2 text-[18px]">Like</p>
           </div>
 
