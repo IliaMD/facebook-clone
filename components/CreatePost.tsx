@@ -15,6 +15,7 @@ import guy from "../assets/guy7.jpg";
 import camera from "../assets/camera.png";
 import photos from "../assets/photos.png";
 import smile from "../assets/smile.png";
+import nouser from "../assets/nouser.png";
 
 const CreatePost = () => {
   const { data: session } = useSession();
@@ -67,7 +68,7 @@ const CreatePost = () => {
         <div className="mt-8 flex items-center w-full p-3 pt-4">
           <div className="w-12 h-12 shrink-0">
             <img
-              src={session?.user.image}
+              src={session ? session.user.image : nouser.src}
               alt="user"
               className="rounded-full"
             />

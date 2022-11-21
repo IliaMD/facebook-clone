@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 import guy from "../assets/guy7.jpg";
+import nouser from "../assets/nouser.png";
 import { MdHome, MdGroups } from "react-icons/md";
 import { BsCart3, BsPeopleFill, BsCalendar2Fill } from "react-icons/bs";
 import { RiArrowDownSLine } from "react-icons/ri";
@@ -19,16 +20,19 @@ const LeftSideBar = () => {
           <p className="ml-2">Home</p>
         </div>
 
-        <div className="flex items-center mt-4">
+        <div
+          className="flex items-center mt-4 cursor-pointer"
+          onClick={() => signIn()}
+        >
           <div className="w-9 h-9 shrink-0">
             <img
-              src={session?.user.image}
+              src={session ? session.user.image : nouser.src}
               alt="user"
               className="rounded-full "
             />
           </div>
           <p className="ml-2 font-bold whitespace-nowrap">
-            {session?.user.name}
+            {session ? session.user.name : "Log In"}
           </p>
         </div>
 
