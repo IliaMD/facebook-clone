@@ -1,7 +1,8 @@
 import Image from "next/image";
 import React from "react";
 import facebook from "../assets/facebook1.png";
-import user from "../assets/guy7.jpg";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 
 import { MdHome } from "react-icons/md";
 import { FiPlayCircle, FiFlag, FiMessageCircle } from "react-icons/fi";
@@ -9,16 +10,20 @@ import { BsCart3 } from "react-icons/bs";
 import { GrGroup, GrAppsRounded } from "react-icons/gr";
 import { FaBell } from "react-icons/fa";
 import { AiOutlineMessage } from "react-icons/ai";
-import { useSession, signIn, signOut } from "next-auth/react";
+import nouser from "../assets/nouser.png";
 
 const Header = () => {
   const { data: session } = useSession();
+  const router = useRouter();
 
   return (
     <div className="p-4 flex items-center justify-between border-b lg:px-10">
       {/* LeftSide */}
       <div className="flex items-center mr-2">
-        <div className="w-10 h-10">
+        <div
+          className="w-10 h-10 cursor-pointer"
+          onClick={() => router.push("/")}
+        >
           <Image src={facebook} alt="Логотип" />
         </div>
         <div className="ml-2">
@@ -46,8 +51,13 @@ const Header = () => {
           <FaBell className="w-7 h-7" />
           <AiOutlineMessage className="w-7 h-7" />
         </div>
-        <div className="w-10 h-10">
-          <img src={session?.user.image} alt="user" className="rounded-full" />
+        <div className="w-10 h-10 cursor-pointer">
+          <img
+            src={session ? session.user.image : nouser.src}
+            alt="user"
+            className="rounded-full"
+            onClick={() => signIn()}
+          />
         </div>
       </div>
     </div>

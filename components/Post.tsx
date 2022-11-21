@@ -25,6 +25,7 @@ import blacklike from "../assets/2unlike.png";
 import { BiLike, BiSmile } from "react-icons/bi";
 import { FaRegCommentAlt } from "react-icons/fa";
 import share from "../assets/share.png";
+import nouser from "../assets/nouser.png";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
@@ -253,7 +254,11 @@ const Post: FC<PostType> = ({
       {/* Input */}
       <div className="flex items-center mt-4">
         <div className="w-10 h-10 shrink-0">
-          <img src={session?.user.image} alt="user" className="rounded-full " />
+          <img
+            src={session ? session.user.image : nouser.src}
+            alt="user"
+            className="rounded-full "
+          />
         </div>
         <div className="flex justify-between items-center ml-2 w-full bg-[#f2f3f7] rounded-full relative">
           <input
