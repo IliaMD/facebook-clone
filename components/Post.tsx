@@ -11,13 +11,12 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
-import guy from "../assets/guy7.jpg";
 import dots from "../assets/dots.png";
-import car from "../assets/c-class.jpg";
 import hearth from "../assets/hearth.png";
 import like from "../assets/like.png";
 import bluelike from "../assets/25like.png";
@@ -35,7 +34,7 @@ export type PostType = {
   userName: string;
   profileImg: string;
   caption: string;
-  timestamp: any;
+  timestamp: Timestamp;
   image: string;
 };
 
@@ -48,7 +47,7 @@ export type CommentsType = {
   username: string;
   profileImg: string;
   comment: string;
-  timestamp: any;
+  timestamp: Timestamp;
   id: string;
 };
 
@@ -105,15 +104,15 @@ const Post: FC<PostType> = ({
 
   // updating likes in app from db
   useEffect(() => {
-    onSnapshot(collection(db, "posts", id, "likes"), (snapshot) =>
+    onSnapshot(collection(db, "posts", id, "likes"), (snapshot) => {
       setLikes(
         snapshot.docs.map((obj) => ({
           id: obj.id,
           ...obj.data(),
         })) as LikeType[]
-      )
-    );
-  }, [db, id]);
+      );
+    });
+  }, [db]);
 
   // checking if user has liked already
   useEffect(() => {
@@ -126,7 +125,7 @@ const Post: FC<PostType> = ({
   const handleLikePost = async () => {
     if (session) {
       if (hasLiked) {
-        await deleteDoc(doc(db, "posts", id, "likes", session.user.uid));
+        await deleteDoc(doc(db, "posts", id, "likes", session?.user.uid));
       } else {
         await setDoc(doc(db, "posts", id, "likes", session.user.uid), {
           username: session?.user.name,
@@ -149,7 +148,7 @@ const Post: FC<PostType> = ({
               <p className="text-xs">
                 <Moment fromNow>{timestamp?.toDate()}</Moment> &#8226;
               </p>
-              <BiWorld className="ml-1 shrink-0" />
+              <BiWorld className="ml-1 shrink-0 " />
             </div>
           </div>
         </div>
@@ -164,9 +163,11 @@ const Post: FC<PostType> = ({
       </div>
 
       {/* Image */}
-      <div className="-mx-5">
-        <img src={image} alt="Your post" />
-      </div>
+      {image && (
+        <div className="-mx-5">
+          <img src={image} alt="Your post" />
+        </div>
+      )}
 
       {/* NumberOfLikes and Buttons */}
       <div className="">

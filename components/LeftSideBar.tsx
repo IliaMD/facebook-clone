@@ -1,8 +1,6 @@
-import React, { FC } from "react";
-import Image from "next/image";
-import { useSession, signIn, signOut } from "next-auth/react";
+import React from "react";
+import { useSession, signIn } from "next-auth/react";
 
-import guy from "../assets/guy7.jpg";
 import nouser from "../assets/nouser.png";
 import { MdHome, MdGroups } from "react-icons/md";
 import { BsCart3, BsPeopleFill, BsCalendar2Fill } from "react-icons/bs";

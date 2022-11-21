@@ -5,13 +5,21 @@ import facebook from "../../assets/facebook1.png";
 import Image from "next/image";
 
 interface ProvidersProps {
-  providers: any;
+  providers: ProviderType[];
 }
+
+type ProviderType = {
+  id: string;
+  name: string;
+  type: string;
+  signinUrl: string;
+  callbackUrl: string;
+};
 
 const SignIn: FC<ProvidersProps> = ({ providers }) => {
   return (
     <>
-      {Object.values(providers).map((provider: any) => (
+      {Object.values(providers).map((provider: ProviderType) => (
         <div key={provider.name}>
           <Header />
           <div className="flex flex-col items-center mt-12">
@@ -33,7 +41,7 @@ const SignIn: FC<ProvidersProps> = ({ providers }) => {
   );
 };
 
-export async function getServerSideProps(context: any) {
+export async function getServerSideProps() {
   const providers = await getProviders();
   return {
     props: { providers },

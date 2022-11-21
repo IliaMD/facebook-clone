@@ -59,6 +59,14 @@ const Header = () => {
             onClick={() => signIn()}
           />
         </div>
+        <div className=" bg-blue-500 rounded-full p-2 text-[14px]">
+          <button
+            className="text-white"
+            onClick={() => signOut({ callbackUrl: "/" })}
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
   );

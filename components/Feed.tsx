@@ -7,21 +7,13 @@ import RightSideBar from "./RightSideBar";
 
 const Feed = () => {
   return (
-    <div className="flex bg-[#f2f3f7]">
-      {/* LeftSideBar */}
+    <div className="flex bg-[#f2f3f7] flex-1">
       <LeftSideBar />
-
       <div className="mx-auto ">
-        {/* Stories */}
         <Stories />
-
-        {/* CreatePost*/}
         <CreatePost />
-
-        {/* Posts*/}
         <Posts />
       </div>
-      {/* RightSieBar*/}
       <RightSideBar />
     </div>
   );
