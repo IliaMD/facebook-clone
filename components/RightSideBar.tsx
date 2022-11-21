@@ -14,7 +14,6 @@ import therock from "../assets/1rock.jpg";
 import { BsFillCameraVideoFill } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
 import dots from "../assets/dots.png";
-import { Interface } from "readline";
 
 type ProfilesType = {
   name: string;

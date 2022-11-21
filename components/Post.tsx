@@ -2,10 +2,14 @@ import React, { FC, useState, useEffect } from "react";
 import Image from "next/image";
 import Moment from "react-moment";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
   setDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -39,6 +43,14 @@ export type LikeType = {
   id: string;
 };
 
+export type CommentsType = {
+  username: string;
+  profileImg: string;
+  comment: string;
+  timestamp: any;
+  id: string;
+};
+
 const Post: FC<PostType> = ({
   id,
   userName,
@@ -50,9 +62,47 @@ const Post: FC<PostType> = ({
   const [hasLiked, setHasLiked] = useState(false);
   const { data: session } = useSession();
   const [likes, setLikes] = useState<LikeType[]>([]);
+  const [comments, setComments] = useState<CommentsType[]>();
+  const [singleComment, setSingleComment] = useState("");
 
-  console.log([...likes]);
+  // send comments to db on click post
+  const sendComment = async (e: any) => {
+    e.preventDefault();
+    await addDoc(collection(db, "posts", id, "comments"), {
+      comment: singleComment,
+      username: session?.user.name,
+      profileImg: session?.user.image,
+      timestamp: serverTimestamp(),
+    });
+    setSingleComment("");
+  };
 
+  // send comments to db on enter
+  const sendCommentOnEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.code === "Enter") {
+      sendComment(e);
+    }
+  };
+
+  // update comments in app from db
+  useEffect(() => {
+    onSnapshot(
+      query(
+        collection(db, "posts", id, "comments"),
+        orderBy("timestamp", "desc")
+      ),
+      (snapshot) => {
+        setComments(
+          snapshot.docs.map((obj) => ({
+            id: obj.id,
+            ...obj.data(),
+          })) as CommentsType[]
+        );
+      }
+    );
+  }, [db]);
+
+  // updating likes in app from db
   useEffect(() => {
     onSnapshot(collection(db, "posts", id, "likes"), (snapshot) =>
       setLikes(
@@ -62,16 +112,18 @@ const Post: FC<PostType> = ({
         })) as LikeType[]
       )
     );
-  }, [db]);
+  }, [db, id]);
 
+  // checking if user has liked already
   useEffect(() => {
     setHasLiked(
       likes.findIndex((like) => like.id === session?.user.uid) !== -1
     );
   }, [likes]);
 
+  // delete and add like to db
   const handleLikePost = async () => {
-    if (session != null) {
+    if (session) {
       if (hasLiked) {
         await deleteDoc(doc(db, "posts", id, "likes", session.user.uid));
       } else {
@@ -81,6 +133,7 @@ const Post: FC<PostType> = ({
       }
     }
   };
+
   return (
     <div className="bg-white rounded-[1rem] p-5 mt-4">
       {/* Header */}
@@ -125,11 +178,13 @@ const Post: FC<PostType> = ({
               <Image src={hearth} alt="likes" />
             </div>
             <p className="pl-2 whitespace-nowrap text-[15px] sm:text-[16px]">
-              Emily Doe and another 21,200
+              {likes.length > 0
+                ? `${likes[0]?.username} and another ${likes.length - 1}`
+                : "No one has liked yet"}
             </p>
           </div>
           <p className="whitespace-nowrap text-[15px] sm:text-[16px]">
-            372 comments
+            {comments?.length} comments
           </p>
         </div>
         <div className="border-b my-2"></div>
@@ -164,7 +219,7 @@ const Post: FC<PostType> = ({
       {/* Comment Section */}
       <div className="">
         <div className="flex justify-between text-[#8e8d8d] ">
-          <p>See 371 previous comments</p>
+          <p>See {comments?.length} previous comments</p>
           <div className="flex items-center">
             <p>Most Relevant</p>
             <RiArrowDownSLine />
@@ -173,46 +228,41 @@ const Post: FC<PostType> = ({
 
         <div className="max-h-40 overflow-y-auto">
           {/* First Comment */}
-          <div className="">
-            <div className="flex items-center mt-3 ">
-              <div className="w-10 h-10">
-                <Image src={guy} alt="user" className="rounded-full " />
+          {comments?.map((comment, index) => (
+            <div key={index}>
+              <div className="flex items-center mt-3 ">
+                <div className="w-10 h-10">
+                  <img
+                    src={comment.profileImg}
+                    alt="user"
+                    className="rounded-full "
+                  />
+                </div>
+                <p className="ml-2 font-bold">{comment.username}</p>
+                <p className="ml-2">{comment.comment}</p>
               </div>
-              <p className="ml-2 font-bold">Joe Doe</p>
-              <p className="ml-2">Wow! What a nice car! </p>
-            </div>
-          </div>
-          <div className="ml-[3rem] flex -mt-1.5">
-            <p className="mr-2">Like</p>
-            <p className="">Replay</p>
-          </div>
 
-          {/* Second Comment */}
-          <div className="">
-            <div className="flex items-center mt-3 ">
-              <div className="w-10 h-10">
-                <Image src={guy} alt="user" className="rounded-full " />
+              <div className="ml-[3rem] flex -mt-1.5">
+                <p className="mr-2">Like</p>
+                <p className="">Replay</p>
               </div>
-              <p className="ml-2 font-bold">Cristin Doe</p>
-              <p className="ml-2">I love color! </p>
             </div>
-          </div>
-          <div className="ml-[3rem] flex -mt-1.5">
-            <p className="mr-2">Like</p>
-            <p className="">Replay</p>
-          </div>
+          ))}
         </div>
       </div>
       {/* Input */}
       <div className="flex items-center mt-4">
         <div className="w-10 h-10 shrink-0">
-          <Image src={guy} alt="user" className="rounded-full " />
+          <img src={session?.user.image} alt="user" className="rounded-full " />
         </div>
         <div className="flex justify-between items-center ml-2 w-full bg-[#f2f3f7] rounded-full relative">
           <input
             type="text"
             placeholder="Write a comment"
             className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
+            value={singleComment}
+            onChange={(e) => setSingleComment(e.target.value)}
+            onKeyDown={sendCommentOnEnter}
           />
           <div className="flex absolute right-[4.5rem] space-x-2 text-[#8e8d8d]">
             <BiSmile />
@@ -220,7 +270,9 @@ const Post: FC<PostType> = ({
             <AiOutlineGif />
           </div>
           <div className="mr-4 bg-blue-400 text-white rounded-full">
-            <button className="font-bold px-2 ">Post</button>
+            <button className="font-bold px-2 " onClick={sendComment}>
+              Post
+            </button>
           </div>
         </div>
       </div>
