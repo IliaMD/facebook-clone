@@ -37,6 +37,7 @@ const Posts = () => {
             caption={post.caption}
             timestamp={post.timestamp}
             image={post.image}
+            video={post.video}
           />
         ))}
       </div>

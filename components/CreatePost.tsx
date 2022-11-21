@@ -22,13 +22,14 @@ const CreatePost = () => {
   const router = useRouter();
   const [captionValue, setCaptionValue] = useState("");
   const [image, setImage] = useState<any>("");
+  const [video, setVideo] = useState<any>("");
   const [loading, setLoading] = useState(false);
 
   const imageRef = useRef<HTMLInputElement>(null);
 
   const uploadPost = async () => {
     if (session) {
-      if (captionValue || image) {
+      if (captionValue || image || video) {
         setLoading(true);
         const docRef = await addDoc(collection(db, "posts"), {
           profileImg: session?.user.image,
@@ -50,6 +51,17 @@ const CreatePost = () => {
           });
         }
 
+        if (video) {
+          await uploadString(imagePath, video, "data_url").then(async () => {
+            const downloadUrl = await getDownloadURL(imagePath);
+            if (downloadUrl) {
+              await updateDoc(doc(db, "posts", docRef.id), {
+                video: downloadUrl,
+              });
+            }
+          });
+        }
+
         setCaptionValue("");
         setImage("");
         setLoading(false);
@@ -62,13 +74,21 @@ const CreatePost = () => {
   const addImagetoState = (e: any) => {
     const reader = new FileReader();
 
-    if (e.target.files[0]) {
+    if (e.target.files[0].type.includes("video")) {
       reader.readAsDataURL(e.target.files[0]);
+      reader.onload = (readerEvent) => {
+        setVideo(readerEvent.target?.result);
+        setImage("");
+      };
     }
 
-    reader.onload = (readerEvent) => {
-      setImage(readerEvent.target?.result);
-    };
+    if (e.target.files[0].type.includes("image")) {
+      reader.readAsDataURL(e.target.files[0]);
+      reader.onload = (readerEvent) => {
+        setImage(readerEvent.target?.result);
+        setVideo("");
+      };
+    }
   };
 
   return (
@@ -109,6 +129,11 @@ const CreatePost = () => {
         ) : (
           ""
         )}
+        {video && (
+          <video width="750" height="500" controls>
+            <source src={video} />
+          </video>
+        )}
         <div className="border-b mb-4 mt-2"></div>
 
         <div className="flex justify-between mx-3  pb-3">
@@ -146,7 +171,7 @@ const CreatePost = () => {
           className="hidden"
           ref={imageRef}
           onChange={addImagetoState}
-          accept="image/*"
+          /* accept="image/*" */
         />
       </div>
     </div>

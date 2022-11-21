@@ -35,7 +35,8 @@ export type PostType = {
   profileImg: string;
   caption: string;
   timestamp: Timestamp;
-  image: string;
+  image?: string;
+  video?: string;
 };
 
 export type LikeType = {
@@ -58,6 +59,7 @@ const Post: FC<PostType> = ({
   caption,
   timestamp,
   image,
+  video,
 }) => {
   const [hasLiked, setHasLiked] = useState(false);
   const { data: session } = useSession();
@@ -166,6 +168,13 @@ const Post: FC<PostType> = ({
       {image && (
         <div className="-mx-5">
           <img src={image} alt="Your post" />
+        </div>
+      )}
+      {video && (
+        <div className="-mx-5">
+          <video width="750" height="500" controls>
+            <source src={video} />
+          </video>
         </div>
       )}
 
