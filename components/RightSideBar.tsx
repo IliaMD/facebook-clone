@@ -14,7 +14,6 @@ import therock from "../assets/1rock.jpg";
 import { BsFillCameraVideoFill } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
 import dots from "../assets/dots.png";
-import { Interface } from "readline";
 
 type ProfilesType = {
   name: string;
@@ -47,8 +46,8 @@ const RightSideBar = () => {
           </div>
         </div>
         <div className="space-y-4 mt-4 ">
-          {profiles.map((profile) => (
-            <div className="flex items-center ">
+          {profiles.map((profile, index) => (
+            <div className="flex items-center " key={index}>
               <div className="w-12 h-12 flex relative">
                 <img
                   src={profile.photo.src}

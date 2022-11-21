@@ -10,6 +10,7 @@ import { AiOutlineDesktop, AiFillClockCircle } from "react-icons/ai";
 
 const LeftSideBar = () => {
   const { data: session } = useSession();
+
   return (
     <div className="w-[10rem] hidden sm:block">
       <div className="flex flex-col space-y-4 pt-4 sm:pt-12 pl-7 ">
