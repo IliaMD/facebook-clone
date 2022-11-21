@@ -33,8 +33,6 @@ const Stories = () => {
         className="w-full flex justify-between space-x-2 mx-auto max-w-[25rem] sm:max-w-[29rem] 
       p-2 bg-white rounded-[1rem]"
       >
-        {/* My story */}
-
         {/* Stories */}
         {stories.map((story, index) => (
           <div

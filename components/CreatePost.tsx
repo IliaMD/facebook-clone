@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import Image from "next/image";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import {
   addDoc,
   collection,
@@ -10,8 +10,8 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { useRouter } from "next/router";
 
-import guy from "../assets/guy7.jpg";
 import camera from "../assets/camera.png";
 import photos from "../assets/photos.png";
 import smile from "../assets/smile.png";
@@ -19,7 +19,7 @@ import nouser from "../assets/nouser.png";
 
 const CreatePost = () => {
   const { data: session } = useSession();
-
+  const router = useRouter();
   const [captionValue, setCaptionValue] = useState("");
   const [image, setImage] = useState<any>("");
   const [loading, setLoading] = useState(false);
@@ -27,27 +27,36 @@ const CreatePost = () => {
   const imageRef = useRef<HTMLInputElement>(null);
 
   const uploadPost = async () => {
-    setLoading(true);
-    const docRef = await addDoc(collection(db, "posts"), {
-      profileImg: session?.user.image,
-      userName: session?.user.name,
-      caption: captionValue,
-      timestamp: serverTimestamp(),
-    });
+    if (session) {
+      if (captionValue || image) {
+        setLoading(true);
+        const docRef = await addDoc(collection(db, "posts"), {
+          profileImg: session?.user.image,
+          userName: session?.user.name,
+          caption: captionValue,
+          timestamp: serverTimestamp(),
+        });
 
-    const imagePath = ref(storage, `/posts/${docRef.id}/image`);
+        const imagePath = ref(storage, `/posts/${docRef.id}/image`);
 
-    await uploadString(imagePath, image, "data_url").then(async () => {
-      const downloadUrl = await getDownloadURL(imagePath);
+        if (image) {
+          await uploadString(imagePath, image, "data_url").then(async () => {
+            const downloadUrl = await getDownloadURL(imagePath);
+            if (downloadUrl) {
+              await updateDoc(doc(db, "posts", docRef.id), {
+                image: downloadUrl,
+              });
+            }
+          });
+        }
 
-      await updateDoc(doc(db, "posts", docRef.id), {
-        image: downloadUrl,
-      });
-    });
-
-    setCaptionValue("");
-    setImage("");
-    setLoading(false);
+        setCaptionValue("");
+        setImage("");
+        setLoading(false);
+      }
+    } else {
+      router.push("/auth/signin");
+    }
   };
 
   const addImagetoState = (e: any) => {
@@ -137,6 +146,7 @@ const CreatePost = () => {
           className="hidden"
           ref={imageRef}
           onChange={addImagetoState}
+          accept="image/*"
         />
       </div>
     </div>
