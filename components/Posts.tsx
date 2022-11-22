@@ -8,7 +8,7 @@ const Posts = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
-    const unSubcribe = onSnapshot(
+    onSnapshot(
       query(collection(db, "posts"), orderBy("timestamp", "desc")),
       (snapshot) => {
         setPosts(
@@ -19,10 +19,6 @@ const Posts = () => {
         );
       }
     );
-
-    return () => {
-      unSubcribe();
-    };
   }, [db]);
 
   return (

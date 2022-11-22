@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
+import { v4 as uuidv4 } from "uuid";
 
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
@@ -28,6 +29,8 @@ import nouser from "../assets/nouser.png";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
+import { MdOutlineDeleteForever } from "react-icons/md";
+import { TiDeleteOutline } from "react-icons/ti";
 
 export type PostType = {
   id: string;
@@ -66,6 +69,7 @@ const Post: FC<PostType> = ({
   const [likes, setLikes] = useState<LikeType[]>([]);
   const [comments, setComments] = useState<CommentsType[]>();
   const [singleComment, setSingleComment] = useState("");
+  const [visibleDelete, setVisibleDelete] = useState(false);
 
   // send comments to db on click post
   const sendComment = async (e: any) => {
@@ -75,6 +79,7 @@ const Post: FC<PostType> = ({
       username: session?.user.name,
       profileImg: session?.user.image,
       timestamp: serverTimestamp(),
+      commentId: uuidv4(),
     });
     setSingleComment("");
   };
@@ -89,10 +94,7 @@ const Post: FC<PostType> = ({
   // update comments in app from db
   useEffect(() => {
     onSnapshot(
-      query(
-        collection(db, "posts", id, "comments"),
-        orderBy("timestamp", "desc")
-      ),
+      query(collection(db, "posts", id, "comments"), orderBy("timestamp")),
       (snapshot) => {
         setComments(
           snapshot.docs.map((obj) => ({
@@ -127,12 +129,26 @@ const Post: FC<PostType> = ({
   const handleLikePost = async () => {
     if (session) {
       if (hasLiked) {
-        await deleteDoc(doc(db, "posts", id, "likes", session?.user.uid));
+        await deleteDoc(doc(db, "posts", id, "likes", session.user.uid));
       } else {
         await setDoc(doc(db, "posts", id, "likes", session.user.uid), {
           username: session?.user.name,
         });
       }
+    }
+  };
+
+  // delete post
+  const handleDeletePost = async () => {
+    if (session?.user.name === userName) {
+      await deleteDoc(doc(db, "posts", id));
+    }
+  };
+
+  // delete comment
+  const handleDeleteComment = async (commentId: string) => {
+    if (session) {
+      await deleteDoc(doc(db, "posts", id, "comments", commentId));
     }
   };
 
@@ -154,8 +170,23 @@ const Post: FC<PostType> = ({
             </div>
           </div>
         </div>
-        <div className="w-10 h-10">
-          <Image src={dots} alt="dots" />
+        <div className="w-10 h-10 relative cursor-pointer">
+          <Image
+            src={dots}
+            alt="dots"
+            onClick={() => setVisibleDelete(!visibleDelete)}
+          />
+
+          {visibleDelete && (
+            <div
+              className="flex w-[150px] absolute right-0 top-8 z-50
+               bg-white p-3 items-center cursor-pointer justify-between"
+              onClick={handleDeletePost}
+            >
+              <p className="">Удалить пост</p>
+              <MdOutlineDeleteForever className="shrink-0 w-7 h-7" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -166,13 +197,14 @@ const Post: FC<PostType> = ({
 
       {/* Image */}
       {image && (
-        <div className="-mx-5">
-          <img src={image} alt="Your post" />
+        <div className="-mx-5 max-h-[650px] max-w-[464px]">
+          <img src={image} alt="Your post" className="object-contain" />
         </div>
       )}
+
       {video && (
-        <div className="-mx-5">
-          <video width="750" height="500" controls>
+        <div className="mx-5 max-h-[650px] max-w-[464px] ">
+          <video controls className="object-contain">
             <source src={video} />
           </video>
         </div>
@@ -238,10 +270,10 @@ const Post: FC<PostType> = ({
         </div>
 
         <div className="max-h-40 overflow-y-auto">
-          {/* First Comment */}
+          {/* Comments */}
           {comments?.map((comment, index) => (
-            <div key={index}>
-              <div className="flex items-center mt-3 ">
+            <div key={index} className="flex justify-between items-center my-3">
+              <div className="flex items-center">
                 <div className="w-10 h-10">
                   <img
                     src={comment.profileImg}
@@ -253,10 +285,11 @@ const Post: FC<PostType> = ({
                 <p className="ml-2">{comment.comment}</p>
               </div>
 
-              <div className="ml-[3rem] flex -mt-1.5">
-                <p className="mr-2">Like</p>
-                <p className="">Replay</p>
-              </div>
+              {session?.user.name === comment.username && (
+                <div onClick={() => handleDeleteComment(comment.id)}>
+                  <TiDeleteOutline className="w-6 h-6" />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -274,7 +307,7 @@ const Post: FC<PostType> = ({
           <input
             type="text"
             placeholder="Write a comment"
-            className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
+            className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full "
             value={singleComment}
             onChange={(e) => setSingleComment(e.target.value)}
             onKeyDown={sendCommentOnEnter}

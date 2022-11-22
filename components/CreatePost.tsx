@@ -11,6 +11,7 @@ import {
 import { db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { useRouter } from "next/router";
+import EmojiPicker, { EmojiStyle, SuggestionMode } from "emoji-picker-react";
 
 import camera from "../assets/camera.png";
 import photos from "../assets/photos.png";
@@ -24,11 +25,13 @@ const CreatePost = () => {
   const [image, setImage] = useState<any>("");
   const [video, setVideo] = useState<any>("");
   const [loading, setLoading] = useState(false);
+  const [isEmojiOpen, setIsEmojiOpen] = useState(false);
 
   const imageRef = useRef<HTMLInputElement>(null);
 
   const uploadPost = async () => {
     if (session) {
+      setIsEmojiOpen(false);
       if (captionValue || image || video) {
         setLoading(true);
         const docRef = await addDoc(collection(db, "posts"), {
@@ -74,7 +77,7 @@ const CreatePost = () => {
   const addImagetoState = (e: any) => {
     const reader = new FileReader();
 
-    if (e.target.files[0].type.includes("video")) {
+    if (e.target.files[0].type?.includes("video")) {
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = (readerEvent) => {
         setVideo(readerEvent.target?.result);
@@ -82,7 +85,7 @@ const CreatePost = () => {
       };
     }
 
-    if (e.target.files[0].type.includes("image")) {
+    if (e.target.files[0].type?.includes("image")) {
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = (readerEvent) => {
         setImage(readerEvent.target?.result);
@@ -91,10 +94,15 @@ const CreatePost = () => {
     }
   };
 
+  const onEmojiClick = (emojiObject: any) => {
+    console.log(emojiObject.emoji);
+    setCaptionValue((prev) => prev + emojiObject.emoji);
+  };
+
   return (
     <div className="w-screen sm:w-full">
       <div className="mx-auto max-w-[25rem] sm:max-w-[29rem] bg-white rounded-[1rem]  ">
-        <div className="mt-8 flex items-center w-full p-3 pt-4">
+        <div className="mt-8 flex items-center w-full p-3 pt-4 relative">
           <div className="w-12 h-12 shrink-0">
             <img
               src={session ? session.user.image : nouser.src}
@@ -118,25 +126,45 @@ const CreatePost = () => {
             </button>
           </div>
         </div>
-        {image ? (
-          <div className="m-2  w-full h-full" onClick={() => setImage("")}>
-            <img
-              src={image}
-              alt="your image"
-              className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
-            />
-          </div>
-        ) : (
-          ""
-        )}
-        {video && (
-          <video width="750" height="500" controls>
-            <source src={video} />
-          </video>
-        )}
+        <div className="flex justify-end mx-1">
+          {image && (
+            <div className="m-2 w-full h-full" onClick={() => setImage("")}>
+              <img
+                src={image}
+                alt="your image"
+                className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
+              />
+            </div>
+          )}
+          {video && (
+            <div className="m-2 w-full h-full">
+              <video
+                className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
+                controls
+              >
+                <source src={video} />
+              </video>
+            </div>
+          )}
+          {isEmojiOpen && (
+            <div className="">
+              <EmojiPicker
+                onEmojiClick={onEmojiClick}
+                emojiStyle={EmojiStyle.GOOGLE}
+                skinTonesDisabled
+                searchDisabled
+                height={250}
+                previewConfig={{
+                  showPreview: false,
+                }}
+              />
+            </div>
+          )}
+        </div>
+
         <div className="border-b mb-4 mt-2"></div>
 
-        <div className="flex justify-between mx-3  pb-3">
+        <div className="flex justify-between mx-3  pb-3 ">
           <div className="flex  items-center">
             <div className="w-7 h-7">
               <Image src={camera} alt="camera" />
@@ -157,7 +185,10 @@ const CreatePost = () => {
             <p className="pl-2 whitespace-nowrap text-[14px]">Photo/Video</p>
           </div>
 
-          <div className="flex items-center">
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => setIsEmojiOpen(!isEmojiOpen)}
+          >
             <div className="w-7 h-7">
               <Image src={smile} alt="smile" />
             </div>
@@ -171,7 +202,7 @@ const CreatePost = () => {
           className="hidden"
           ref={imageRef}
           onChange={addImagetoState}
-          /* accept="image/*" */
+          accept="image/*, video/*"
         />
       </div>
     </div>
