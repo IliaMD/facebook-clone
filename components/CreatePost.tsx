@@ -11,7 +11,7 @@ import {
 import { db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { useRouter } from "next/router";
-import EmojiPicker, { EmojiStyle, SuggestionMode } from "emoji-picker-react";
+import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
 
 import camera from "../assets/camera.png";
 import photos from "../assets/photos.png";
@@ -32,7 +32,7 @@ const CreatePost = () => {
   const uploadPost = async () => {
     if (session) {
       setIsEmojiOpen(false);
-      if (captionValue || image || video) {
+      if (captionValue.trim() || image || video) {
         setLoading(true);
         const docRef = await addDoc(collection(db, "posts"), {
           profileImg: session?.user.image,
@@ -94,8 +94,7 @@ const CreatePost = () => {
     }
   };
 
-  const onEmojiClick = (emojiObject: any) => {
-    console.log(emojiObject.emoji);
+  const onEmojiClick = (emojiObject: EmojiClickData) => {
     setCaptionValue((prev) => prev + emojiObject.emoji);
   };
 

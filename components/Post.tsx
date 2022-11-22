@@ -12,10 +12,12 @@ import {
   serverTimestamp,
   setDoc,
   Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
+import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
 
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
@@ -31,6 +33,7 @@ import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { TiDeleteOutline } from "react-icons/ti";
+import { CiEdit } from "react-icons/ci";
 
 export type PostType = {
   id: string;
@@ -71,16 +74,25 @@ const Post: FC<PostType> = ({
   const [singleComment, setSingleComment] = useState("");
   const [visibleDelete, setVisibleDelete] = useState(false);
 
+  const [isEmojiOpenComment, setIsEmojiOpenComment] = useState(false);
+  const [isEditComment, setIsEditComment] = useState(false);
+  const [editableComment, setEditableComment] = useState("");
+  const [editableCommentId, setEditableCommentId] = useState("");
+
   // send comments to db on click post
   const sendComment = async (e: any) => {
     e.preventDefault();
-    await addDoc(collection(db, "posts", id, "comments"), {
-      comment: singleComment,
-      username: session?.user.name,
-      profileImg: session?.user.image,
-      timestamp: serverTimestamp(),
-      commentId: uuidv4(),
-    });
+    setIsEmojiOpenComment(false);
+
+    if (singleComment.trim()) {
+      await addDoc(collection(db, "posts", id, "comments"), {
+        comment: singleComment,
+        username: session?.user.name,
+        profileImg: session?.user.image,
+        timestamp: serverTimestamp(),
+        commentId: uuidv4(),
+      });
+    }
     setSingleComment("");
   };
 
@@ -150,6 +162,34 @@ const Post: FC<PostType> = ({
     if (session) {
       await deleteDoc(doc(db, "posts", id, "comments", commentId));
     }
+  };
+
+  //update value of comment with like
+  const onEmojionCommentClick = (emojiObject: EmojiClickData) => {
+    setSingleComment((prev) => prev + emojiObject.emoji);
+  };
+
+  const handleChangeComment = (commentId: string, comment: string) => {
+    setEditableCommentId(commentId);
+    setIsEditComment(!isEditComment);
+    setEditableComment(comment);
+  };
+
+  const onEnterSaveEditableComment = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.code === "Enter") {
+      onBlurSaveEditableComment();
+    }
+  };
+
+  const onBlurSaveEditableComment = async () => {
+    if (editableComment !== singleComment) {
+      await updateDoc(doc(db, "posts", id, "comments", editableCommentId), {
+        comment: editableComment,
+      });
+    }
+    setIsEditComment(false);
   };
 
   return (
@@ -281,13 +321,40 @@ const Post: FC<PostType> = ({
                     className="rounded-full "
                   />
                 </div>
-                <p className="ml-2 font-bold">{comment.username}</p>
-                <p className="ml-2">{comment.comment}</p>
+                {isEditComment && comment.id === editableCommentId ? (
+                  <div className="ml-2">
+                    <input
+                      type="text"
+                      className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
+                      value={editableComment}
+                      autoFocus
+                      onBlur={onBlurSaveEditableComment}
+                      onKeyDown={onEnterSaveEditableComment}
+                      onChange={(e) => setEditableComment(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex">
+                    <p className="ml-2 font-bold">{comment.username}</p>
+                    <p className="ml-2">{comment.comment}</p>
+                  </div>
+                )}
               </div>
 
               {session?.user.name === comment.username && (
-                <div onClick={() => handleDeleteComment(comment.id)}>
-                  <TiDeleteOutline className="w-6 h-6" />
+                <div className="flex items-center">
+                  <CiEdit
+                    className="mr-1 w-[22px] h-[20px] cursor-pointer"
+                    onClick={() =>
+                      handleChangeComment(comment.id, comment.comment)
+                    }
+                  />
+                  <div
+                    onClick={() => handleDeleteComment(comment.id)}
+                    className="cursor-pointer"
+                  >
+                    <TiDeleteOutline className="w-6 h-6" />
+                  </div>
                 </div>
               )}
             </div>
@@ -295,7 +362,22 @@ const Post: FC<PostType> = ({
         </div>
       </div>
       {/* Input */}
-      <div className="flex items-center mt-4">
+      <div className="flex items-center mt-4 relative">
+        {isEmojiOpenComment && (
+          <div className="absolute bottom-[2.55rem] left-[6rem]">
+            <EmojiPicker
+              onEmojiClick={onEmojionCommentClick}
+              emojiStyle={EmojiStyle.GOOGLE}
+              skinTonesDisabled
+              searchDisabled
+              height={200}
+              width={300}
+              previewConfig={{
+                showPreview: false,
+              }}
+            />
+          </div>
+        )}
         <div className="w-10 h-10 shrink-0">
           <img
             src={session ? session.user.image : nouser.src}
@@ -313,9 +395,9 @@ const Post: FC<PostType> = ({
             onKeyDown={sendCommentOnEnter}
           />
           <div className="flex absolute right-[4.5rem] space-x-2 text-[#8e8d8d]">
-            <BiSmile />
-            <AiOutlineCamera />
-            <AiOutlineGif />
+            <BiSmile
+              onClick={() => setIsEmojiOpenComment(!isEmojiOpenComment)}
+            />
           </div>
           <div className="mr-4 bg-blue-400 text-white rounded-full">
             <button className="font-bold px-2 " onClick={sendComment}>
