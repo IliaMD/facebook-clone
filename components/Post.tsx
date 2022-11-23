@@ -12,28 +12,25 @@ import {
   serverTimestamp,
   setDoc,
   Timestamp,
-  updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
+import Comment from "./Comment";
 
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
 import like from "../assets/like.png";
 import bluelike from "../assets/25like.png";
 import blacklike from "../assets/2unlike.png";
-import { BiLike, BiSmile } from "react-icons/bi";
+import { BiSmile } from "react-icons/bi";
 import { FaRegCommentAlt } from "react-icons/fa";
 import share from "../assets/share.png";
 import nouser from "../assets/nouser.png";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
 import { MdOutlineDeleteForever } from "react-icons/md";
-import { TiDeleteOutline } from "react-icons/ti";
-import { CiEdit } from "react-icons/ci";
 
 export type PostType = {
   id: string;
@@ -68,16 +65,14 @@ const Post: FC<PostType> = ({
   video,
 }) => {
   const [hasLiked, setHasLiked] = useState(false);
-  const { data: session } = useSession();
   const [likes, setLikes] = useState<LikeType[]>([]);
   const [comments, setComments] = useState<CommentsType[]>();
   const [singleComment, setSingleComment] = useState("");
-  const [visibleDelete, setVisibleDelete] = useState(false);
 
+  const [visibleDelete, setVisibleDelete] = useState(false);
   const [isEmojiOpenComment, setIsEmojiOpenComment] = useState(false);
-  const [isEditComment, setIsEditComment] = useState(false);
-  const [editableComment, setEditableComment] = useState("");
-  const [editableCommentId, setEditableCommentId] = useState("");
+
+  const { data: session } = useSession();
 
   // send comments to db on click post
   const sendComment = async (e: any) => {
@@ -157,39 +152,9 @@ const Post: FC<PostType> = ({
     }
   };
 
-  // delete comment
-  const handleDeleteComment = async (commentId: string) => {
-    if (session) {
-      await deleteDoc(doc(db, "posts", id, "comments", commentId));
-    }
-  };
-
   //update value of comment with like
   const onEmojionCommentClick = (emojiObject: EmojiClickData) => {
     setSingleComment((prev) => prev + emojiObject.emoji);
-  };
-
-  const handleChangeComment = (commentId: string, comment: string) => {
-    setEditableCommentId(commentId);
-    setIsEditComment(!isEditComment);
-    setEditableComment(comment);
-  };
-
-  const onEnterSaveEditableComment = (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (e.code === "Enter") {
-      onBlurSaveEditableComment();
-    }
-  };
-
-  const onBlurSaveEditableComment = async () => {
-    if (editableComment !== singleComment) {
-      await updateDoc(doc(db, "posts", id, "comments", editableCommentId), {
-        comment: editableComment,
-      });
-    }
-    setIsEditComment(false);
   };
 
   return (
@@ -311,53 +276,15 @@ const Post: FC<PostType> = ({
 
         <div className="max-h-40 overflow-y-auto">
           {/* Comments */}
-          {comments?.map((comment, index) => (
-            <div key={index} className="flex justify-between items-center my-3">
-              <div className="flex items-center">
-                <div className="w-10 h-10">
-                  <img
-                    src={comment.profileImg}
-                    alt="user"
-                    className="rounded-full "
-                  />
-                </div>
-                {isEditComment && comment.id === editableCommentId ? (
-                  <div className="ml-2">
-                    <input
-                      type="text"
-                      className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
-                      value={editableComment}
-                      autoFocus
-                      onBlur={onBlurSaveEditableComment}
-                      onKeyDown={onEnterSaveEditableComment}
-                      onChange={(e) => setEditableComment(e.target.value)}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex">
-                    <p className="ml-2 font-bold">{comment.username}</p>
-                    <p className="ml-2">{comment.comment}</p>
-                  </div>
-                )}
-              </div>
-
-              {session?.user.name === comment.username && (
-                <div className="flex items-center">
-                  <CiEdit
-                    className="mr-1 w-[22px] h-[20px] cursor-pointer"
-                    onClick={() =>
-                      handleChangeComment(comment.id, comment.comment)
-                    }
-                  />
-                  <div
-                    onClick={() => handleDeleteComment(comment.id)}
-                    className="cursor-pointer"
-                  >
-                    <TiDeleteOutline className="w-6 h-6" />
-                  </div>
-                </div>
-              )}
-            </div>
+          {comments?.map((comment) => (
+            <Comment
+              key={comment.id}
+              commentId={comment.id}
+              userName={comment.username}
+              text={comment.comment}
+              profileImg={comment.profileImg}
+              postId={id}
+            />
           ))}
         </div>
       </div>
