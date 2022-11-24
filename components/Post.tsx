@@ -12,22 +12,27 @@ import {
   serverTimestamp,
   setDoc,
   Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
+import { v4 as uuidv4 } from "uuid";
+import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
+import Comment from "./Comment";
+import Loader from "./Loader";
 
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
 import like from "../assets/like.png";
 import bluelike from "../assets/25like.png";
 import blacklike from "../assets/2unlike.png";
-import { BiLike, BiSmile } from "react-icons/bi";
+import { BiSmile } from "react-icons/bi";
 import { FaRegCommentAlt } from "react-icons/fa";
 import share from "../assets/share.png";
 import nouser from "../assets/nouser.png";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { AiOutlineCamera, AiOutlineGif } from "react-icons/ai";
 import { BiWorld } from "react-icons/bi";
+import { MdOutlineDeleteForever } from "react-icons/md";
 
 export type PostType = {
   id: string;
@@ -35,6 +40,8 @@ export type PostType = {
   profileImg: string;
   caption: string;
   timestamp: Timestamp;
+  isLoaded: boolean;
+  haveMedia: boolean;
   image?: string;
   video?: string;
 };
@@ -60,22 +67,42 @@ const Post: FC<PostType> = ({
   timestamp,
   image,
   video,
+  isLoaded,
+  haveMedia,
 }) => {
   const [hasLiked, setHasLiked] = useState(false);
-  const { data: session } = useSession();
   const [likes, setLikes] = useState<LikeType[]>([]);
   const [comments, setComments] = useState<CommentsType[]>();
   const [singleComment, setSingleComment] = useState("");
 
+  const [visibleDelete, setVisibleDelete] = useState(false);
+  const [isEmojiOpenComment, setIsEmojiOpenComment] = useState(false);
+
+  const { data: session } = useSession();
+
+  //update post from loading to picture
+  useEffect(() => {
+    if (haveMedia) {
+      updateDoc(doc(db, "posts", id), {
+        isLoaded: true,
+      });
+    }
+  }, [image, video]);
+
   // send comments to db on click post
   const sendComment = async (e: any) => {
     e.preventDefault();
-    await addDoc(collection(db, "posts", id, "comments"), {
-      comment: singleComment,
-      username: session?.user.name,
-      profileImg: session?.user.image,
-      timestamp: serverTimestamp(),
-    });
+    setIsEmojiOpenComment(false);
+
+    if (singleComment.trim()) {
+      await addDoc(collection(db, "posts", id, "comments"), {
+        comment: singleComment,
+        username: session?.user.name,
+        profileImg: session?.user.image,
+        timestamp: serverTimestamp(),
+        commentId: uuidv4(),
+      });
+    }
     setSingleComment("");
   };
 
@@ -89,10 +116,7 @@ const Post: FC<PostType> = ({
   // update comments in app from db
   useEffect(() => {
     onSnapshot(
-      query(
-        collection(db, "posts", id, "comments"),
-        orderBy("timestamp", "desc")
-      ),
+      query(collection(db, "posts", id, "comments"), orderBy("timestamp")),
       (snapshot) => {
         setComments(
           snapshot.docs.map((obj) => ({
@@ -127,13 +151,25 @@ const Post: FC<PostType> = ({
   const handleLikePost = async () => {
     if (session) {
       if (hasLiked) {
-        await deleteDoc(doc(db, "posts", id, "likes", session?.user.uid));
+        await deleteDoc(doc(db, "posts", id, "likes", session.user.uid));
       } else {
         await setDoc(doc(db, "posts", id, "likes", session.user.uid), {
           username: session?.user.name,
         });
       }
     }
+  };
+
+  // delete post
+  const handleDeletePost = async () => {
+    if (session?.user.name === userName) {
+      await deleteDoc(doc(db, "posts", id));
+    }
+  };
+
+  //update value of comment with like
+  const onEmojionCommentClick = (emojiObject: EmojiClickData) => {
+    setSingleComment((prev) => prev + emojiObject.emoji);
   };
 
   return (
@@ -154,29 +190,48 @@ const Post: FC<PostType> = ({
             </div>
           </div>
         </div>
-        <div className="w-10 h-10">
-          <Image src={dots} alt="dots" />
+        <div className="w-10 h-10 relative cursor-pointer">
+          <Image
+            src={dots}
+            alt="dots"
+            onClick={() => setVisibleDelete(!visibleDelete)}
+          />
+
+          {visibleDelete && (
+            <div
+              className="flex w-[150px] absolute right-0 top-8 z-50
+               bg-white p-3 items-center cursor-pointer justify-between"
+              onClick={handleDeletePost}
+            >
+              <p className="">Удалить пост</p>
+              <MdOutlineDeleteForever className="shrink-0 w-7 h-7" />
+            </div>
+          )}
         </div>
       </div>
-
       {/* Input */}
       <div className="mt-3 mb-2">
         <p>{caption}</p>
       </div>
 
       {/* Image */}
-      {image && (
-        <div className="-mx-5">
-          <img src={image} alt="Your post" />
-        </div>
-      )}
-      {video && (
-        <div className="-mx-5">
-          <video width="750" height="500" controls>
-            <source src={video} />
-          </video>
-        </div>
-      )}
+      {haveMedia &&
+        (isLoaded ? (
+          (image && (
+            <div className="-mx-5 max-h-[650px] max-w-[464px]">
+              <img src={image} alt="Your post" className="object-contain" />
+            </div>
+          )) ||
+          (video && (
+            <div className="mx-5 max-h-[650px] max-w-[464px] ">
+              <video controls className="object-contain">
+                <source src={video} />
+              </video>
+            </div>
+          ))
+        ) : (
+          <Loader />
+        ))}
 
       {/* NumberOfLikes and Buttons */}
       <div className="">
@@ -226,7 +281,6 @@ const Post: FC<PostType> = ({
 
         <div className="border-b my-2"></div>
       </div>
-
       {/* Comment Section */}
       <div className="">
         <div className="flex justify-between text-[#8e8d8d] ">
@@ -238,31 +292,36 @@ const Post: FC<PostType> = ({
         </div>
 
         <div className="max-h-40 overflow-y-auto">
-          {/* First Comment */}
-          {comments?.map((comment, index) => (
-            <div key={index}>
-              <div className="flex items-center mt-3 ">
-                <div className="w-10 h-10">
-                  <img
-                    src={comment.profileImg}
-                    alt="user"
-                    className="rounded-full "
-                  />
-                </div>
-                <p className="ml-2 font-bold">{comment.username}</p>
-                <p className="ml-2">{comment.comment}</p>
-              </div>
-
-              <div className="ml-[3rem] flex -mt-1.5">
-                <p className="mr-2">Like</p>
-                <p className="">Replay</p>
-              </div>
-            </div>
+          {/* Comments */}
+          {comments?.map((comment) => (
+            <Comment
+              key={comment.id}
+              commentId={comment.id}
+              userName={comment.username}
+              text={comment.comment}
+              profileImg={comment.profileImg}
+              postId={id}
+            />
           ))}
         </div>
       </div>
       {/* Input */}
-      <div className="flex items-center mt-4">
+      <div className="flex items-center mt-4 relative">
+        {isEmojiOpenComment && (
+          <div className="absolute bottom-[2.55rem] left-[6rem]">
+            <EmojiPicker
+              onEmojiClick={onEmojionCommentClick}
+              emojiStyle={EmojiStyle.GOOGLE}
+              skinTonesDisabled
+              searchDisabled
+              height={200}
+              width={300}
+              previewConfig={{
+                showPreview: false,
+              }}
+            />
+          </div>
+        )}
         <div className="w-10 h-10 shrink-0">
           <img
             src={session ? session.user.image : nouser.src}
@@ -274,15 +333,15 @@ const Post: FC<PostType> = ({
           <input
             type="text"
             placeholder="Write a comment"
-            className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
+            className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full "
             value={singleComment}
             onChange={(e) => setSingleComment(e.target.value)}
             onKeyDown={sendCommentOnEnter}
           />
           <div className="flex absolute right-[4.5rem] space-x-2 text-[#8e8d8d]">
-            <BiSmile />
-            <AiOutlineCamera />
-            <AiOutlineGif />
+            <BiSmile
+              onClick={() => setIsEmojiOpenComment(!isEmojiOpenComment)}
+            />
           </div>
           <div className="mr-4 bg-blue-400 text-white rounded-full">
             <button className="font-bold px-2 " onClick={sendComment}>
