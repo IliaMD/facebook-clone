@@ -44,8 +44,6 @@ export type PostType = {
   haveMedia: boolean;
   image?: string;
   video?: string;
-  /* onImageIsLoad: boolean; */
-  /*  onSetImgLoad: (value: boolean) => void; */
 };
 
 export type LikeType = {
@@ -71,9 +69,6 @@ const Post: FC<PostType> = ({
   video,
   isLoaded,
   haveMedia,
-
-  /* onImageIsLoad */
-  /*  onSetImgLoad, */
 }) => {
   const [hasLiked, setHasLiked] = useState(false);
   const [likes, setLikes] = useState<LikeType[]>([]);
@@ -82,14 +77,8 @@ const Post: FC<PostType> = ({
 
   const [visibleDelete, setVisibleDelete] = useState(false);
   const [isEmojiOpenComment, setIsEmojiOpenComment] = useState(false);
-  // const [imgIsLoad, setImgIsLoad] = useState(false);
+
   const { data: session } = useSession();
-  /*  const [onIsLoaded, setIsLoaded] = useState(false);
-   */
-  // onSetImgLoad = (value: boolean) => {
-  //   setImgIsLoad(value);
-  // };
-  // console.log(imgIsLoad);
 
   //update post from loading to picture
   useEffect(() => {
@@ -224,11 +213,8 @@ const Post: FC<PostType> = ({
       <div className="mt-3 mb-2">
         <p>{caption}</p>
       </div>
-      {/* Image */}
-      {/* {isLoaded && image} */}
-      {/*    true и картинка то рисуй картинку если картинка и фолс то рисуй лоадер
-      если нет картинки то ничего */}
 
+      {/* Image */}
       {haveMedia &&
         (isLoaded ? (
           (image && (
@@ -247,23 +233,6 @@ const Post: FC<PostType> = ({
           <Loader />
         ))}
 
-      {/* {image && isLoaded ? (
-        <div className="-mx-5 max-h-[650px] max-w-[464px]">
-          <img src={image} alt="Your post" className="object-contain" />
-        </div>
-      ) : (
-        <Loader />
-      )}
-
-      {video && isLoaded ? (
-        <div className="mx-5 max-h-[650px] max-w-[464px] ">
-          <video controls className="object-contain">
-            <source src={video} />
-          </video>
-        </div>
-      ) : (
-        <Loader />
-      )} */}
       {/* NumberOfLikes and Buttons */}
       <div className="">
         <div className="flex justify-between text-[#8e8d8d] mt-1">
