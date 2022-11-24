@@ -8,17 +8,17 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db, storage } from "../firebase";
+import { db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { useRouter } from "next/router";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
 
-import camera from "../assets/camera.png";
-import photos from "../assets/photos.png";
-import smile from "../assets/smile.png";
-import nouser from "../assets/nouser.png";
+import camera from "../../assets/camera.png";
+import photos from "../../assets/photos.png";
+import smile from "../../assets/smile.png";
+import nouser from "../../assets/nouser.png";
 
-const CreatePost = () => {
+export const CreatePost = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -125,14 +125,18 @@ const CreatePost = () => {
             <input
               type="text"
               placeholder="What's on your mind Joe Doe?"
-              className="outline-0 bg-[#f2f3f7] p-1 rounded-full pl-3 w-full h-12 truncate"
+              className="outline-0 bg-[#f2f3f7] rounded-full p-4 w-full h-12 truncate
+             "
               value={captionValue}
               onChange={(e) => setCaptionValue(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center bg-blue-500 px-3 rounded-full h-10 ml-4">
-            <button onClick={uploadPost} className="font-bold text-white">
+          <div
+            className={`flex items-center bg-blue-500 px-3 rounded-full h-10 ml-4 
+          hover:bg-blue-600 active:bg-blue-400 ${loading}`}
+          >
+            <button onClick={uploadPost} className="font-bold text-white ">
               {loading ? "Loading" : "Post"}
             </button>
           </div>
@@ -219,5 +223,3 @@ const CreatePost = () => {
     </div>
   );
 };
-
-export default CreatePost;

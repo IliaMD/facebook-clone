@@ -4,8 +4,9 @@ import React from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 
-import facebook from "../assets/facebook1.png";
-import nouser from "../assets/nouser.png";
+import facebook from "../../assets/facebook1.png";
+import nouser from "../../assets/nouser.png";
+
 import { MdHome } from "react-icons/md";
 import { FiPlayCircle, FiFlag } from "react-icons/fi";
 import { BsCart3 } from "react-icons/bs";
@@ -13,7 +14,7 @@ import { GrGroup, GrAppsRounded } from "react-icons/gr";
 import { FaBell } from "react-icons/fa";
 import { AiOutlineMessage } from "react-icons/ai";
 
-const Header = () => {
+export const Header = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -72,5 +73,3 @@ const Header = () => {
     </div>
   );
 };
-
-export default Header;

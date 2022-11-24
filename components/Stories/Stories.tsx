@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
-import { stories } from "../utils/mock";
+import { stories } from "../../utils/mock";
 
-const Stories = () => {
+export const Stories = () => {
   return (
     <div className="w-screen h-36 flex items-center  sm:w-full px-2 mt-4 sm:mt-8">
       <div
@@ -35,5 +35,3 @@ const Stories = () => {
     </div>
   );
 };
-
-export default Stories;

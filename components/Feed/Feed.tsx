@@ -1,11 +1,7 @@
 import React from "react";
-import LeftSideBar from "./LeftSideBar";
-import Stories from "./Stories";
-import CreatePost from "./CreatePost";
-import Posts from "./Posts";
-import RightSideBar from "./RightSideBar";
+import { LeftSideBar, Stories, CreatePost, Posts, RightSideBar } from "../";
 
-const Feed = () => {
+export const Feed = () => {
   return (
     <div className="flex bg-[#f2f3f7] flex-1 min-h-screen">
       <LeftSideBar />
@@ -18,5 +14,3 @@ const Feed = () => {
     </div>
   );
 };
-
-export default Feed;

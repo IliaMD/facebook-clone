@@ -1,7 +1,7 @@
 import React from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 
-const Loader = () => {
+export const Loader = () => {
   return (
     <div className="flex items-center justify-center ">
       <ClipLoader
@@ -14,5 +14,3 @@ const Loader = () => {
     </div>
   );
 };
-
-export default Loader;

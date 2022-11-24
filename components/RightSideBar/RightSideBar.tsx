@@ -1,12 +1,12 @@
 import React from "react";
 import Image from "next/image";
-import { profiles } from "../utils/mock";
+import { profiles } from "../..//utils/mock";
 
-import dots from "../assets/dots.png";
+import dots from "../../assets/dots.png";
 import { BsFillCameraVideoFill } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
 
-const RightSideBar = () => {
+export const RightSideBar = () => {
   return (
     <div>
       <div className="pt-4 sm:pt-8 pr-7 hidden lg:block">
@@ -43,5 +43,3 @@ const RightSideBar = () => {
     </div>
   );
 };
-
-export default RightSideBar;

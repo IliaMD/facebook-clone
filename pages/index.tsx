@@ -1,6 +1,5 @@
 import Head from "next/head";
-import Header from "../components/Header";
-import Feed from "../components/Feed";
+import { Header, Feed } from "../components";
 
 export default function IndexPage() {
   return (

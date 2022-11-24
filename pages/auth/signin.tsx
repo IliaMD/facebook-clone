@@ -1,6 +1,6 @@
 import { getProviders, signIn } from "next-auth/react";
 import { FC } from "react";
-import Header from "../../components/Header";
+import { Header } from "../../components";
 import facebook from "../../assets/facebook1.png";
 import Image from "next/image";
 

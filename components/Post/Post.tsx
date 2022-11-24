@@ -13,28 +13,27 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
-import Comment from "./Comment";
-import Loader from "./Loader";
-import { PostType, LikeType, CommentsType } from "../types/types";
+import { Comment, Loader } from "../";
+import { PostType, LikeType, CommentsType } from "../../types";
 
-import dots from "../assets/dots.png";
-import hearth from "../assets/hearth.png";
-import like from "../assets/like.png";
-import bluelike from "../assets/25like.png";
-import blacklike from "../assets/2unlike.png";
-import share from "../assets/share.png";
-import nouser from "../assets/nouser.png";
+import dots from "../../assets/dots.png";
+import hearth from "../../assets/hearth.png";
+import like from "../../assets/like.png";
+import bluelike from "../../assets/25like.png";
+import blacklike from "../../assets/2unlike.png";
+import share from "../../assets/share.png";
+import nouser from "../../assets/nouser.png";
 
 import { BiSmile, BiWorld } from "react-icons/bi";
 import { FaRegCommentAlt } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { MdOutlineDeleteForever } from "react-icons/md";
 
-const Post: FC<PostType> = ({
+export const Post: FC<PostType> = ({
   id,
   userName,
   profileImg,
@@ -188,9 +187,9 @@ const Post: FC<PostType> = ({
           )}
         </div>
       </div>
-      {/* Input */}
+
       <div className="mt-3 mb-2">
-        <p>{caption}</p>
+        <p className="text-clip break-words max-w-[440px]">{caption}</p>
       </div>
 
       {/* Image */}
@@ -312,7 +311,7 @@ const Post: FC<PostType> = ({
           <input
             type="text"
             placeholder="Write a comment"
-            className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full "
+            className="outline-0 bg-[#f2f3f7] p-2 pr-8 rounded-full w-full  "
             value={singleComment}
             onChange={(e) => setSingleComment(e.target.value)}
             onKeyDown={sendCommentOnEnter}
@@ -332,5 +331,3 @@ const Post: FC<PostType> = ({
     </div>
   );
 };
-
-export default Post;

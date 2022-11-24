@@ -1,13 +1,14 @@
 import React from "react";
 import { useSession, signIn } from "next-auth/react";
 
-import nouser from "../assets/nouser.png";
+import nouser from "../../assets/nouser.png";
+
 import { MdHome, MdGroups } from "react-icons/md";
 import { BsCart3, BsPeopleFill, BsCalendar2Fill } from "react-icons/bs";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { AiOutlineDesktop, AiFillClockCircle } from "react-icons/ai";
 
-const LeftSideBar = () => {
+export const LeftSideBar = () => {
   const { data: session } = useSession();
 
   return (
@@ -76,5 +77,3 @@ const LeftSideBar = () => {
     </div>
   );
 };
-
-export default LeftSideBar;

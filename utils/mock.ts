@@ -14,7 +14,7 @@ import kobe from "../assets/1kobe.webp";
 import arnoldbackground from "../assets/arnoldbackground.webp";
 import arnold from "../assets/1arnold.jpg";
 
-import { ProfilesType, StoriesType } from "../types/types";
+import { ProfilesType, StoriesType } from "../types";
 
 export const profiles: ProfilesType[] = [
   { name: "Albert E.", photo: albert },
