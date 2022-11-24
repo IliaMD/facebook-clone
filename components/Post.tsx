@@ -11,7 +11,6 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  Timestamp,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -20,44 +19,20 @@ import { v4 as uuidv4 } from "uuid";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
 import Comment from "./Comment";
 import Loader from "./Loader";
+import { PostType, LikeType, CommentsType } from "../types/types";
 
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
 import like from "../assets/like.png";
 import bluelike from "../assets/25like.png";
 import blacklike from "../assets/2unlike.png";
-import { BiSmile } from "react-icons/bi";
-import { FaRegCommentAlt } from "react-icons/fa";
 import share from "../assets/share.png";
 import nouser from "../assets/nouser.png";
+
+import { BiSmile, BiWorld } from "react-icons/bi";
+import { FaRegCommentAlt } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { BiWorld } from "react-icons/bi";
 import { MdOutlineDeleteForever } from "react-icons/md";
-
-export type PostType = {
-  id: string;
-  userName: string;
-  profileImg: string;
-  caption: string;
-  timestamp: Timestamp;
-  isLoaded: boolean;
-  haveMedia: boolean;
-  image?: string;
-  video?: string;
-};
-
-export type LikeType = {
-  username: string;
-  id: string;
-};
-
-export type CommentsType = {
-  username: string;
-  profileImg: string;
-  comment: string;
-  timestamp: Timestamp;
-  id: string;
-};
 
 const Post: FC<PostType> = ({
   id,
@@ -90,7 +65,11 @@ const Post: FC<PostType> = ({
   }, [image, video]);
 
   // send comments to db on click post
-  const sendComment = async (e: any) => {
+  const sendComment = async (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.KeyboardEvent<HTMLInputElement>
+  ) => {
     e.preventDefault();
     setIsEmojiOpenComment(false);
 

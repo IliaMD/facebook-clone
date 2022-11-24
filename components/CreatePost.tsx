@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import {
@@ -18,11 +18,10 @@ import photos from "../assets/photos.png";
 import smile from "../assets/smile.png";
 import nouser from "../assets/nouser.png";
 
-interface CreatePostI {}
-
-const CreatePost: FC<CreatePostI> = () => {
+const CreatePost = () => {
   const { data: session } = useSession();
   const router = useRouter();
+
   const [captionValue, setCaptionValue] = useState("");
   const [image, setImage] = useState<any>("");
   const [video, setVideo] = useState<any>("");

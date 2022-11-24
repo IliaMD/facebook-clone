@@ -1,32 +1,8 @@
 import React from "react";
-import Image, { StaticImageData } from "next/image";
-
-import therock from "../assets/therock.jpg";
-import therock2 from "../assets/therock2.webp";
-import therock20 from "../assets/therock20.jpg";
-import mike from "../assets/1miketyson.jpg";
-import mikeprofile from "../assets/mikeprofile.webp";
-import mrbeastbackground from "../assets/mrbeastbackground.webp";
-import mrbeast from "../assets/1mrbeast.jpg";
-import kobebackground from "../assets/kobebackground.jpg";
-import kobe from "../assets/1kobe.webp";
-import arnoldbackground from "../assets/arnoldbackground.webp";
-import arnold from "../assets/1arnold.jpg";
-
-type StoriesType = {
-  profile: StaticImageData;
-  background: StaticImageData;
-};
+import Image from "next/image";
+import { stories } from "../utils/mock";
 
 const Stories = () => {
-  const stories: StoriesType[] = [
-    { profile: therock, background: therock20 },
-    { profile: mikeprofile, background: mike },
-    { profile: mrbeast, background: mrbeastbackground },
-    { profile: kobe, background: kobebackground },
-    { profile: arnold, background: arnoldbackground },
-  ];
-
   return (
     <div className="w-screen h-36 flex items-center  sm:w-full px-2 mt-4 sm:mt-8">
       <div

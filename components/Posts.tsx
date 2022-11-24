@@ -1,14 +1,12 @@
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
-import React, { FC, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import Post from "./Post";
-import { PostType } from "./Post";
+import { PostType } from "../types/types";
 import Skeleton from "./Skeleton";
 
-interface PostsI {}
-
-const Posts: FC<PostsI> = () => {
+const Posts = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [isLoadPost, setIsLoadPost] = useState(true);
 
