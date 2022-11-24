@@ -1,11 +1,16 @@
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
-import React, { useState, useEffect } from "react";
+
+import React, { FC, useState, useEffect } from "react";
 import { db } from "../firebase";
 import Post from "./Post";
 import { PostType } from "./Post";
+import Skeleton from "./Skeleton";
 
-const Posts = () => {
+interface PostsI {}
+
+const Posts: FC<PostsI> = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [isLoadPost, setIsLoadPost] = useState(true);
 
   useEffect(() => {
     onSnapshot(
@@ -19,23 +24,30 @@ const Posts = () => {
         );
       }
     );
+    setIsLoadPost(false);
   }, [db]);
 
   return (
     <div className="w-screen sm:w-full">
       <div className="my-6 max-w-[25rem] sm:max-w-[29rem] mx-auto">
-        {posts.map((post) => (
-          <Post
-            key={post.id}
-            id={post.id}
-            userName={post.userName}
-            profileImg={post.profileImg}
-            caption={post.caption}
-            timestamp={post.timestamp}
-            image={post.image}
-            video={post.video}
-          />
-        ))}
+        {isLoadPost
+          ? Array(3)
+              .fill("0")
+              .map((_, index) => <Skeleton key={index} />)
+          : posts.map((post) => (
+              <Post
+                key={post.id}
+                id={post.id}
+                userName={post.userName}
+                profileImg={post.profileImg}
+                caption={post.caption}
+                timestamp={post.timestamp}
+                image={post.image}
+                video={post.video}
+                isLoaded={post.isLoaded}
+                haveMedia={post.haveMedia}
+              />
+            ))}
       </div>
     </div>
   );

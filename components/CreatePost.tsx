@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import {
@@ -18,7 +18,9 @@ import photos from "../assets/photos.png";
 import smile from "../assets/smile.png";
 import nouser from "../assets/nouser.png";
 
-const CreatePost = () => {
+interface CreatePostI {}
+
+const CreatePost: FC<CreatePostI> = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const [captionValue, setCaptionValue] = useState("");
@@ -32,6 +34,7 @@ const CreatePost = () => {
   const uploadPost = async () => {
     if (session) {
       setIsEmojiOpen(false);
+
       if (captionValue.trim() || image || video) {
         setLoading(true);
         const docRef = await addDoc(collection(db, "posts"), {
@@ -39,27 +42,36 @@ const CreatePost = () => {
           userName: session?.user.name,
           caption: captionValue,
           timestamp: serverTimestamp(),
+          haveMedia: false,
         });
 
         const imagePath = ref(storage, `/posts/${docRef.id}/image`);
 
         if (image) {
+          await updateDoc(doc(db, "posts", docRef.id), {
+            haveMedia: true,
+          });
           await uploadString(imagePath, image, "data_url").then(async () => {
             const downloadUrl = await getDownloadURL(imagePath);
             if (downloadUrl) {
               await updateDoc(doc(db, "posts", docRef.id), {
                 image: downloadUrl,
+                isLoaded: false,
               });
             }
           });
         }
 
         if (video) {
+          await updateDoc(doc(db, "posts", docRef.id), {
+            haveMedia: true,
+          });
           await uploadString(imagePath, video, "data_url").then(async () => {
             const downloadUrl = await getDownloadURL(imagePath);
             if (downloadUrl) {
               await updateDoc(doc(db, "posts", docRef.id), {
                 video: downloadUrl,
+                isLoaded: false,
               });
             }
           });
@@ -67,6 +79,7 @@ const CreatePost = () => {
 
         setCaptionValue("");
         setImage("");
+        setVideo("");
         setLoading(false);
       }
     } else {
@@ -136,7 +149,7 @@ const CreatePost = () => {
             </div>
           )}
           {video && (
-            <div className="m-2 w-full h-full">
+            <div className="m-2 w-full h-full" onClick={() => setVideo("")}>
               <video
                 className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
                 controls

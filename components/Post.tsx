@@ -12,12 +12,14 @@ import {
   serverTimestamp,
   setDoc,
   Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
 import Comment from "./Comment";
+import Loader from "./Loader";
 
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
@@ -38,8 +40,12 @@ export type PostType = {
   profileImg: string;
   caption: string;
   timestamp: Timestamp;
+  isLoaded: boolean;
+  haveMedia: boolean;
   image?: string;
   video?: string;
+  /* onImageIsLoad: boolean; */
+  /*  onSetImgLoad: (value: boolean) => void; */
 };
 
 export type LikeType = {
@@ -63,6 +69,11 @@ const Post: FC<PostType> = ({
   timestamp,
   image,
   video,
+  isLoaded,
+  haveMedia,
+
+  /* onImageIsLoad */
+  /*  onSetImgLoad, */
 }) => {
   const [hasLiked, setHasLiked] = useState(false);
   const [likes, setLikes] = useState<LikeType[]>([]);
@@ -71,8 +82,23 @@ const Post: FC<PostType> = ({
 
   const [visibleDelete, setVisibleDelete] = useState(false);
   const [isEmojiOpenComment, setIsEmojiOpenComment] = useState(false);
-
+  // const [imgIsLoad, setImgIsLoad] = useState(false);
   const { data: session } = useSession();
+  /*  const [onIsLoaded, setIsLoaded] = useState(false);
+   */
+  // onSetImgLoad = (value: boolean) => {
+  //   setImgIsLoad(value);
+  // };
+  // console.log(imgIsLoad);
+
+  //update post from loading to picture
+  useEffect(() => {
+    if (haveMedia) {
+      updateDoc(doc(db, "posts", id), {
+        isLoaded: true,
+      });
+    }
+  }, [image, video]);
 
   // send comments to db on click post
   const sendComment = async (e: any) => {
@@ -194,27 +220,50 @@ const Post: FC<PostType> = ({
           )}
         </div>
       </div>
-
       {/* Input */}
       <div className="mt-3 mb-2">
         <p>{caption}</p>
       </div>
-
       {/* Image */}
-      {image && (
+      {/* {isLoaded && image} */}
+      {/*    true и картинка то рисуй картинку если картинка и фолс то рисуй лоадер
+      если нет картинки то ничего */}
+
+      {haveMedia &&
+        (isLoaded ? (
+          (image && (
+            <div className="-mx-5 max-h-[650px] max-w-[464px]">
+              <img src={image} alt="Your post" className="object-contain" />
+            </div>
+          )) ||
+          (video && (
+            <div className="mx-5 max-h-[650px] max-w-[464px] ">
+              <video controls className="object-contain">
+                <source src={video} />
+              </video>
+            </div>
+          ))
+        ) : (
+          <Loader />
+        ))}
+
+      {/* {image && isLoaded ? (
         <div className="-mx-5 max-h-[650px] max-w-[464px]">
           <img src={image} alt="Your post" className="object-contain" />
         </div>
+      ) : (
+        <Loader />
       )}
 
-      {video && (
+      {video && isLoaded ? (
         <div className="mx-5 max-h-[650px] max-w-[464px] ">
           <video controls className="object-contain">
             <source src={video} />
           </video>
         </div>
-      )}
-
+      ) : (
+        <Loader />
+      )} */}
       {/* NumberOfLikes and Buttons */}
       <div className="">
         <div className="flex justify-between text-[#8e8d8d] mt-1">
@@ -263,7 +312,6 @@ const Post: FC<PostType> = ({
 
         <div className="border-b my-2"></div>
       </div>
-
       {/* Comment Section */}
       <div className="">
         <div className="flex justify-between text-[#8e8d8d] ">
