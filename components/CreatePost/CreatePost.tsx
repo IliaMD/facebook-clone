@@ -89,21 +89,23 @@ export const CreatePost = () => {
   const addImagetoState = (e: any) => {
     const reader = new FileReader();
 
-    if (e.target.files[0].type?.includes("video")) {
-      reader.readAsDataURL(e.target.files[0]);
-      reader.onload = (readerEvent) => {
-        setVideo(readerEvent.target?.result);
-        setImage("");
-      };
-    }
+    if (e.target.files[0] !== undefined && e.target.files[0].size < 5097152) {
+      if (e.target.files[0].type?.includes("video")) {
+        reader.readAsDataURL(e.target.files[0]);
+        reader.onload = (readerEvent) => {
+          setVideo(readerEvent.target?.result);
+          setImage("");
+        };
+      }
 
-    if (e.target.files[0].type?.includes("image")) {
-      reader.readAsDataURL(e.target.files[0]);
-      reader.onload = (readerEvent) => {
-        setImage(readerEvent.target?.result);
-        setVideo("");
-      };
-    }
+      if (e.target.files[0].type?.includes("image")) {
+        reader.readAsDataURL(e.target.files[0]);
+        reader.onload = (readerEvent) => {
+          setImage(readerEvent.target?.result);
+          setVideo("");
+        };
+      }
+    } else alert("You can upload image or video less then 5MB");
   };
 
   const onEmojiClick = (emojiObject: EmojiClickData) => {
@@ -136,7 +138,11 @@ export const CreatePost = () => {
             className={`flex items-center bg-blue-500 px-3 rounded-full h-10 ml-4 
           hover:bg-blue-600 active:bg-blue-400 ${loading}`}
           >
-            <button onClick={uploadPost} className="font-bold text-white ">
+            <button
+              onClick={uploadPost}
+              className="font-bold text-white "
+              disabled={loading}
+            >
               {loading ? "Loading" : "Post"}
             </button>
           </div>

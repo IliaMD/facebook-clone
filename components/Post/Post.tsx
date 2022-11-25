@@ -13,6 +13,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 import { db } from "../../firebase";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
@@ -138,10 +139,13 @@ export const Post: FC<PostType> = ({
     }
   };
 
-  // delete post
+  // delete post and from storage
   const handleDeletePost = async () => {
     if (session?.user.name === userName) {
       await deleteDoc(doc(db, "posts", id));
+      const storage = getStorage();
+      const imageRef = ref(storage, `posts/${id}/image`);
+      deleteObject(imageRef);
     }
   };
 
@@ -168,24 +172,26 @@ export const Post: FC<PostType> = ({
             </div>
           </div>
         </div>
-        <div className="w-10 h-10 relative cursor-pointer">
-          <Image
-            src={dots}
-            alt="dots"
-            onClick={() => setVisibleDelete(!visibleDelete)}
-          />
+        {session?.user.name === userName && (
+          <div className="w-10 h-10 relative cursor-pointer">
+            <Image
+              src={dots}
+              alt="dots"
+              onClick={() => setVisibleDelete(!visibleDelete)}
+            />
 
-          {visibleDelete && (
-            <div
-              className="flex w-[150px] absolute right-0 top-8 z-50
+            {visibleDelete && (
+              <div
+                className="flex w-[150px] absolute right-0 top-8 z-50
                bg-white p-3 items-center cursor-pointer justify-between"
-              onClick={handleDeletePost}
-            >
-              <p className="">Удалить пост</p>
-              <MdOutlineDeleteForever className="shrink-0 w-7 h-7" />
-            </div>
-          )}
-        </div>
+                onClick={handleDeletePost}
+              >
+                <p className="">Удалить пост</p>
+                <MdOutlineDeleteForever className="shrink-0 w-7 h-7" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-3 mb-2">
