@@ -161,19 +161,21 @@ export const CreatePost = () => {
         </div>
         <div className="flex justify-end mx-1">
           {image && (
-            <div className="m-2 w-full h-full" onClick={() => setImage("")}>
+            <div className="m-2 w-full h-full">
               <img
                 src={image}
                 alt="your image"
                 className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
+                onClick={() => setImage("")}
               />
             </div>
           )}
           {video && (
-            <div className="m-2 w-full h-full" onClick={() => setVideo("")}>
+            <div className="m-2 w-full h-full">
               <video
                 className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
                 controls
+                onClick={() => setVideo("")}
               >
                 <source src={video} />
               </video>
