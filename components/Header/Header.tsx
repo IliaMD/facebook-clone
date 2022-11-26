@@ -38,7 +38,7 @@ export const Header = () => {
       </div>
 
       {/* MidleSide */}
-      <div className="flex items-center space-x-7">
+      <div className="min-[860px]:flex items-center space-x-7 hidden">
         <MdHome className="w-9 h-9" />
         <FiFlag className="w-7 h-7" />
         <FiPlayCircle className="w-7 h-7" />
@@ -62,12 +62,18 @@ export const Header = () => {
           />
         </div>
         <div className=" bg-blue-500 rounded-full p-2 text-[14px]">
-          <button
-            className="text-white"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            Sign out
-          </button>
+          {session ? (
+            <button
+              className="text-white"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              Sign out
+            </button>
+          ) : (
+            <button className="text-white" onClick={() => signIn()}>
+              Sign in
+            </button>
+          )}
         </div>
       </div>
     </div>

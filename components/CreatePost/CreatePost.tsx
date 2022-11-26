@@ -17,6 +17,7 @@ import camera from "../../assets/camera.png";
 import photos from "../../assets/photos.png";
 import smile from "../../assets/smile.png";
 import nouser from "../../assets/nouser.png";
+import loader from "../../assets/loader.svg";
 
 export const CreatePost = () => {
   const { data: session } = useSession();
@@ -127,7 +128,10 @@ export const CreatePost = () => {
             <input
               type="text"
               placeholder="What's on your mind Joe Doe?"
-              className="outline-0 bg-[#f2f3f7] rounded-full p-4 w-full h-12 truncate
+              className="outline-0 bg-[#f2f3f7] rounded-full p-4 w-full h-12 
+              truncate 
+              border-[1px] border-solid border-[#e2e8f0]
+              hover:border-[#94a3b8] focus:border-[#94a3b8]
              "
               value={captionValue}
               onChange={(e) => setCaptionValue(e.target.value)}
@@ -135,9 +139,17 @@ export const CreatePost = () => {
           </div>
 
           <div
-            className={`flex items-center bg-blue-500 px-3 rounded-full h-10 ml-4 
-          hover:bg-blue-600 active:bg-blue-400 ${loading}`}
+            className="flex items-center justify-center bg-blue-500 rounded-full ml-2 h-10 px-4
+          hover:bg-blue-600 active:bg-blue-400 active:shadow-inner
+          hover:shadow-lg transition duration-300 ease-in-out"
           >
+            {loading && (
+              <Image
+                src={loader}
+                className="motion-reduce:hidden animate-spin w-5 h-5 mr-1"
+                alt="loading"
+              ></Image>
+            )}
             <button
               onClick={uploadPost}
               className="font-bold text-white "
@@ -183,10 +195,10 @@ export const CreatePost = () => {
           )}
         </div>
 
-        <div className="border-b mb-4 mt-2"></div>
+        <div className="border-b mt-2"></div>
 
-        <div className="flex justify-between mx-3  pb-3 ">
-          <div className="flex  items-center">
+        <div className="flex justify-between ">
+          <div className="sm:flex  items-center p-4 hidden ">
             <div className="w-7 h-7">
               <Image src={camera} alt="camera" />
             </div>
@@ -194,20 +206,20 @@ export const CreatePost = () => {
           </div>
 
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer p-4 hover:shadow transition duration-300 ease-in-out"
             onClick={() => {
               imageRef.current?.click();
             }}
           >
-            <div className="w-7 h-7">
+            <div className="w-7 h-7 ">
               <Image src={photos} alt="photos" />
             </div>
 
-            <p className="pl-2 whitespace-nowrap text-[14px]">Photo/Video</p>
+            <p className="pl-2 whitespace-nowrap text-[14px] ">Photo/Video</p>
           </div>
 
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer p-4 hover:shadow transition duration-300 ease-in-out"
             onClick={() => setIsEmojiOpen(!isEmojiOpen)}
           >
             <div className="w-7 h-7">
@@ -218,6 +230,7 @@ export const CreatePost = () => {
             </p>
           </div>
         </div>
+
         <input
           type="file"
           className="hidden"

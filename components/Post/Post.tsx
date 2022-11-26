@@ -143,9 +143,12 @@ export const Post: FC<PostType> = ({
   const handleDeletePost = async () => {
     if (session?.user.name === userName) {
       await deleteDoc(doc(db, "posts", id));
-      const storage = getStorage();
-      const imageRef = ref(storage, `posts/${id}/image`);
-      deleteObject(imageRef);
+
+      if (image || video) {
+        const storage = getStorage();
+        const imageRef = ref(storage, `posts/${id}/image`);
+        deleteObject(imageRef);
+      }
     }
   };
 
@@ -313,11 +316,14 @@ export const Post: FC<PostType> = ({
             className="rounded-full "
           />
         </div>
-        <div className="flex justify-between items-center ml-2 w-full bg-[#f2f3f7] rounded-full relative">
+        <div
+          className="flex justify-between items-center ml-2 w-full bg-[#f2f3f7] rounded-full relative border-[1px] border-solid border-[#e2e8f0]
+              hover:border-[#94a3b8] focus:border-[#94a3b8]"
+        >
           <input
             type="text"
             placeholder="Write a comment"
-            className="outline-0 bg-[#f2f3f7] p-2 pr-8 rounded-full w-full  "
+            className="outline-0 bg-[#f2f3f7] p-2 pr-8 rounded-full w-full"
             value={singleComment}
             onChange={(e) => setSingleComment(e.target.value)}
             onKeyDown={sendCommentOnEnter}

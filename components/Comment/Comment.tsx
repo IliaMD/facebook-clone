@@ -59,7 +59,9 @@ export const Comment: FC<CommentI> = ({
           <div className="ml-2">
             <input
               type="text"
-              className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
+              className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full 
+              border-[1px] border-solid border-[#e2e8f0]
+              hover:border-[#94a3b8] focus:border-[#94a3b8]"
               value={editableComment}
               autoFocus
               onBlur={onBlurSaveEditableComment}
@@ -69,14 +71,16 @@ export const Comment: FC<CommentI> = ({
           </div>
         ) : (
           <div className="flex items-center">
-            <p className="ml-2 font-bold">{userName}</p>
-            <p className="ml-2 text-clip break-words max-w-[220px]">{text}</p>
+            <p className="sm:ml-2 font-bold ml-1">{userName}</p>
+            <p className="ml-2 text-clip break-words sm:max-w-[220px] max-w-[190px]">
+              {text}
+            </p>
           </div>
         )}
       </div>
 
       {session?.user.name === userName && (
-        <div className="flex items-center">
+        <div className="flex items-center mr-1">
           <CiEdit
             className="mr-1 w-[22px] h-[20px] cursor-pointer"
             onClick={() => setIsEditComment(!isEditComment)}
