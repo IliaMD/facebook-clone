@@ -5,9 +5,9 @@ export const Skeleton = () => {
   return (
     <ContentLoader
       speed={2}
-      width={660}
+      className="max-w-[464px] w-full"
       height={550}
-      viewBox="0 0 660 550"
+      viewBox="0 0 464 550"
       backgroundColor="#f3f3f3"
       foregroundColor="#ecebeb"
     >

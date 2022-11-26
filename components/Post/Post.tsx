@@ -105,7 +105,7 @@ export const Post: FC<PostType> = ({
         );
       }
     );
-  }, [db]);
+  }, []);
 
   // updating likes in app from db
   useEffect(() => {
@@ -117,7 +117,7 @@ export const Post: FC<PostType> = ({
         })) as LikeType[]
       );
     });
-  }, [db]);
+  }, []);
 
   // checking if user has liked already
   useEffect(() => {
