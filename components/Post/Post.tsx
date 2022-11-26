@@ -11,55 +11,30 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  Timestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { getStorage, ref, deleteObject } from "firebase/storage";
+import { db } from "../../firebase";
 import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
-import Comment from "./Comment";
-import Loader from "./Loader";
+import { Comment, Loader } from "../";
+import { PostType, LikeType, CommentsType } from "../../types";
 
-import dots from "../assets/dots.png";
-import hearth from "../assets/hearth.png";
-import like from "../assets/like.png";
-import bluelike from "../assets/25like.png";
-import blacklike from "../assets/2unlike.png";
-import { BiSmile } from "react-icons/bi";
+import dots from "../../assets/dots.png";
+import hearth from "../../assets/hearth.png";
+import like from "../../assets/like.png";
+import bluelike from "../../assets/25like.png";
+import blacklike from "../../assets/2unlike.png";
+import share from "../../assets/share.png";
+import nouser from "../../assets/nouser.png";
+
+import { BiSmile, BiWorld } from "react-icons/bi";
 import { FaRegCommentAlt } from "react-icons/fa";
-import share from "../assets/share.png";
-import nouser from "../assets/nouser.png";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { BiWorld } from "react-icons/bi";
 import { MdOutlineDeleteForever } from "react-icons/md";
 
-export type PostType = {
-  id: string;
-  userName: string;
-  profileImg: string;
-  caption: string;
-  timestamp: Timestamp;
-  isLoaded: boolean;
-  haveMedia: boolean;
-  image?: string;
-  video?: string;
-};
-
-export type LikeType = {
-  username: string;
-  id: string;
-};
-
-export type CommentsType = {
-  username: string;
-  profileImg: string;
-  comment: string;
-  timestamp: Timestamp;
-  id: string;
-};
-
-const Post: FC<PostType> = ({
+export const Post: FC<PostType> = ({
   id,
   userName,
   profileImg,
@@ -90,7 +65,11 @@ const Post: FC<PostType> = ({
   }, [image, video]);
 
   // send comments to db on click post
-  const sendComment = async (e: any) => {
+  const sendComment = async (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.KeyboardEvent<HTMLInputElement>
+  ) => {
     e.preventDefault();
     setIsEmojiOpenComment(false);
 
@@ -160,10 +139,16 @@ const Post: FC<PostType> = ({
     }
   };
 
-  // delete post
+  // delete post and from storage
   const handleDeletePost = async () => {
     if (session?.user.name === userName) {
       await deleteDoc(doc(db, "posts", id));
+
+      if (image || video) {
+        const storage = getStorage();
+        const imageRef = ref(storage, `posts/${id}/image`);
+        deleteObject(imageRef);
+      }
     }
   };
 
@@ -190,28 +175,30 @@ const Post: FC<PostType> = ({
             </div>
           </div>
         </div>
-        <div className="w-10 h-10 relative cursor-pointer">
-          <Image
-            src={dots}
-            alt="dots"
-            onClick={() => setVisibleDelete(!visibleDelete)}
-          />
+        {session?.user.name === userName && (
+          <div className="w-10 h-10 relative cursor-pointer">
+            <Image
+              src={dots}
+              alt="dots"
+              onClick={() => setVisibleDelete(!visibleDelete)}
+            />
 
-          {visibleDelete && (
-            <div
-              className="flex w-[150px] absolute right-0 top-8 z-50
+            {visibleDelete && (
+              <div
+                className="flex w-[150px] absolute right-0 top-8 z-50
                bg-white p-3 items-center cursor-pointer justify-between"
-              onClick={handleDeletePost}
-            >
-              <p className="">Удалить пост</p>
-              <MdOutlineDeleteForever className="shrink-0 w-7 h-7" />
-            </div>
-          )}
-        </div>
+                onClick={handleDeletePost}
+              >
+                <p className="">Удалить пост</p>
+                <MdOutlineDeleteForever className="shrink-0 w-7 h-7" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      {/* Input */}
+
       <div className="mt-3 mb-2">
-        <p>{caption}</p>
+        <p className="text-clip break-words max-w-[440px]">{caption}</p>
       </div>
 
       {/* Image */}
@@ -329,11 +316,14 @@ const Post: FC<PostType> = ({
             className="rounded-full "
           />
         </div>
-        <div className="flex justify-between items-center ml-2 w-full bg-[#f2f3f7] rounded-full relative">
+        <div
+          className="flex justify-between items-center ml-2 w-full bg-[#f2f3f7] rounded-full relative border-[1px] border-solid border-[#e2e8f0]
+              hover:border-[#94a3b8] focus:border-[#94a3b8]"
+        >
           <input
             type="text"
             placeholder="Write a comment"
-            className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full "
+            className="outline-0 bg-[#f2f3f7] p-2 pr-8 rounded-full w-full"
             value={singleComment}
             onChange={(e) => setSingleComment(e.target.value)}
             onKeyDown={sendCommentOnEnter}
@@ -353,5 +343,3 @@ const Post: FC<PostType> = ({
     </div>
   );
 };
-
-export default Post;

@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import {
@@ -8,21 +8,21 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db, storage } from "../firebase";
+import { db, storage } from "../../firebase";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { useRouter } from "next/router";
 import EmojiPicker, { EmojiStyle, EmojiClickData } from "emoji-picker-react";
 
-import camera from "../assets/camera.png";
-import photos from "../assets/photos.png";
-import smile from "../assets/smile.png";
-import nouser from "../assets/nouser.png";
+import camera from "../../assets/camera.png";
+import photos from "../../assets/photos.png";
+import smile from "../../assets/smile.png";
+import nouser from "../../assets/nouser.png";
+import loader from "../../assets/loader.svg";
 
-interface CreatePostI {}
-
-const CreatePost: FC<CreatePostI> = () => {
+export const CreatePost = () => {
   const { data: session } = useSession();
   const router = useRouter();
+
   const [captionValue, setCaptionValue] = useState("");
   const [image, setImage] = useState<any>("");
   const [video, setVideo] = useState<any>("");
@@ -90,21 +90,23 @@ const CreatePost: FC<CreatePostI> = () => {
   const addImagetoState = (e: any) => {
     const reader = new FileReader();
 
-    if (e.target.files[0].type?.includes("video")) {
-      reader.readAsDataURL(e.target.files[0]);
-      reader.onload = (readerEvent) => {
-        setVideo(readerEvent.target?.result);
-        setImage("");
-      };
-    }
+    if (e.target.files[0] !== undefined && e.target.files[0].size < 5097152) {
+      if (e.target.files[0].type?.includes("video")) {
+        reader.readAsDataURL(e.target.files[0]);
+        reader.onload = (readerEvent) => {
+          setVideo(readerEvent.target?.result);
+          setImage("");
+        };
+      }
 
-    if (e.target.files[0].type?.includes("image")) {
-      reader.readAsDataURL(e.target.files[0]);
-      reader.onload = (readerEvent) => {
-        setImage(readerEvent.target?.result);
-        setVideo("");
-      };
-    }
+      if (e.target.files[0].type?.includes("image")) {
+        reader.readAsDataURL(e.target.files[0]);
+        reader.onload = (readerEvent) => {
+          setImage(readerEvent.target?.result);
+          setVideo("");
+        };
+      }
+    } else alert("You can upload image or video less then 5MB");
   };
 
   const onEmojiClick = (emojiObject: EmojiClickData) => {
@@ -126,14 +128,33 @@ const CreatePost: FC<CreatePostI> = () => {
             <input
               type="text"
               placeholder="What's on your mind Joe Doe?"
-              className="outline-0 bg-[#f2f3f7] p-1 rounded-full pl-3 w-full h-12 truncate"
+              className="outline-0 bg-[#f2f3f7] rounded-full p-4 w-full h-12 
+              truncate 
+              border-[1px] border-solid border-[#e2e8f0]
+              hover:border-[#94a3b8] focus:border-[#94a3b8]
+             "
               value={captionValue}
               onChange={(e) => setCaptionValue(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center bg-blue-500 px-3 rounded-full h-10 ml-4">
-            <button onClick={uploadPost} className="font-bold text-white">
+          <div
+            className="flex items-center justify-center bg-blue-500 rounded-full ml-2 h-10 px-4
+          hover:bg-blue-600 active:bg-blue-400 active:shadow-inner
+          hover:shadow-lg transition duration-300 ease-in-out"
+          >
+            {loading && (
+              <Image
+                src={loader}
+                className="motion-reduce:hidden animate-spin w-5 h-5 mr-1"
+                alt="loading"
+              ></Image>
+            )}
+            <button
+              onClick={uploadPost}
+              className="font-bold text-white "
+              disabled={loading}
+            >
               {loading ? "Loading" : "Post"}
             </button>
           </div>
@@ -174,10 +195,10 @@ const CreatePost: FC<CreatePostI> = () => {
           )}
         </div>
 
-        <div className="border-b mb-4 mt-2"></div>
+        <div className="border-b mt-2"></div>
 
-        <div className="flex justify-between mx-3  pb-3 ">
-          <div className="flex  items-center">
+        <div className="flex justify-between ">
+          <div className="sm:flex  items-center p-4 hidden ">
             <div className="w-7 h-7">
               <Image src={camera} alt="camera" />
             </div>
@@ -185,20 +206,20 @@ const CreatePost: FC<CreatePostI> = () => {
           </div>
 
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer p-4 hover:shadow transition duration-300 ease-in-out"
             onClick={() => {
               imageRef.current?.click();
             }}
           >
-            <div className="w-7 h-7">
+            <div className="w-7 h-7 ">
               <Image src={photos} alt="photos" />
             </div>
 
-            <p className="pl-2 whitespace-nowrap text-[14px]">Photo/Video</p>
+            <p className="pl-2 whitespace-nowrap text-[14px] ">Photo/Video</p>
           </div>
 
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer p-4 hover:shadow transition duration-300 ease-in-out"
             onClick={() => setIsEmojiOpen(!isEmojiOpen)}
           >
             <div className="w-7 h-7">
@@ -209,6 +230,7 @@ const CreatePost: FC<CreatePostI> = () => {
             </p>
           </div>
         </div>
+
         <input
           type="file"
           className="hidden"
@@ -220,5 +242,3 @@ const CreatePost: FC<CreatePostI> = () => {
     </div>
   );
 };
-
-export default CreatePost;

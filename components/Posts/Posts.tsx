@@ -1,14 +1,11 @@
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
-import React, { FC, useState, useEffect } from "react";
-import { db } from "../firebase";
-import Post from "./Post";
-import { PostType } from "./Post";
-import Skeleton from "./Skeleton";
+import React, { useState, useEffect } from "react";
+import { db } from "../../firebase";
+import { PostType } from "../../types";
+import { Post, Skeleton } from "../";
 
-interface PostsI {}
-
-const Posts: FC<PostsI> = () => {
+export const Posts = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [isLoadPost, setIsLoadPost] = useState(true);
 
@@ -52,5 +49,3 @@ const Posts: FC<PostsI> = () => {
     </div>
   );
 };
-
-export default Posts;

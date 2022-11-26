@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { useSession } from "next-auth/react";
 
 import { TiDeleteOutline } from "react-icons/ti";
@@ -15,7 +15,7 @@ interface CommentI {
   postId: string;
 }
 
-const Comment: FC<CommentI> = ({
+export const Comment: FC<CommentI> = ({
   userName,
   profileImg,
   text,
@@ -50,7 +50,7 @@ const Comment: FC<CommentI> = ({
     }
   };
   return (
-    <div className="flex justify-between items-center my-3">
+    <div className="flex justify-between items-center my-3 ">
       <div className="flex items-center">
         <div className="w-10 h-10">
           <img src={profileImg} alt="user" className="rounded-full " />
@@ -59,7 +59,9 @@ const Comment: FC<CommentI> = ({
           <div className="ml-2">
             <input
               type="text"
-              className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full"
+              className="outline-0 bg-[#f2f3f7] p-2 rounded-full w-full 
+              border-[1px] border-solid border-[#e2e8f0]
+              hover:border-[#94a3b8] focus:border-[#94a3b8]"
               value={editableComment}
               autoFocus
               onBlur={onBlurSaveEditableComment}
@@ -68,15 +70,17 @@ const Comment: FC<CommentI> = ({
             />
           </div>
         ) : (
-          <div className="flex">
-            <p className="ml-2 font-bold">{userName}</p>
-            <p className="ml-2">{text}</p>
+          <div className="flex items-center">
+            <p className="sm:ml-2 font-bold ml-1">{userName}</p>
+            <p className="ml-2 text-clip break-words sm:max-w-[220px] max-w-[190px]">
+              {text}
+            </p>
           </div>
         )}
       </div>
 
       {session?.user.name === userName && (
-        <div className="flex items-center">
+        <div className="flex items-center mr-1">
           <CiEdit
             className="mr-1 w-[22px] h-[20px] cursor-pointer"
             onClick={() => setIsEditComment(!isEditComment)}
@@ -89,5 +93,3 @@ const Comment: FC<CommentI> = ({
     </div>
   );
 };
-
-export default Comment;

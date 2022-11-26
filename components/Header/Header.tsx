@@ -1,18 +1,20 @@
 import Image from "next/image";
 import React from "react";
-import facebook from "../assets/facebook1.png";
+
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 
+import facebook from "../../assets/facebook1.png";
+import nouser from "../../assets/nouser.png";
+
 import { MdHome } from "react-icons/md";
-import { FiPlayCircle, FiFlag, FiMessageCircle } from "react-icons/fi";
+import { FiPlayCircle, FiFlag } from "react-icons/fi";
 import { BsCart3 } from "react-icons/bs";
 import { GrGroup, GrAppsRounded } from "react-icons/gr";
 import { FaBell } from "react-icons/fa";
 import { AiOutlineMessage } from "react-icons/ai";
-import nouser from "../assets/nouser.png";
 
-const Header = () => {
+export const Header = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -36,7 +38,7 @@ const Header = () => {
       </div>
 
       {/* MidleSide */}
-      <div className="flex items-center space-x-7">
+      <div className="min-[860px]:flex items-center space-x-7 hidden">
         <MdHome className="w-9 h-9" />
         <FiFlag className="w-7 h-7" />
         <FiPlayCircle className="w-7 h-7" />
@@ -60,16 +62,20 @@ const Header = () => {
           />
         </div>
         <div className=" bg-blue-500 rounded-full p-2 text-[14px]">
-          <button
-            className="text-white"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            Sign out
-          </button>
+          {session ? (
+            <button
+              className="text-white"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              Sign out
+            </button>
+          ) : (
+            <button className="text-white" onClick={() => signIn()}>
+              Sign in
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
-
-export default Header;
