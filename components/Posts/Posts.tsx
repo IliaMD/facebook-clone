@@ -10,6 +10,7 @@ export const Posts = () => {
   const [isLoadPost, setIsLoadPost] = useState(true);
 
   useEffect(() => {
+    setIsLoadPost(false);
     onSnapshot(
       query(collection(db, "posts"), orderBy("timestamp", "desc")),
       (snapshot) => {
@@ -21,8 +22,7 @@ export const Posts = () => {
         );
       }
     );
-    setIsLoadPost(false);
-  }, [db]);
+  }, []);
 
   return (
     <div className="w-screen sm:w-full">
