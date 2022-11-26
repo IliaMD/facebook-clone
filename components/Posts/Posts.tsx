@@ -24,6 +24,8 @@ export const Posts = () => {
     );
   }, []);
 
+  console.log(posts);
+
   return (
     <div className="w-screen sm:w-full">
       <div className="my-6 max-w-[25rem] sm:max-w-[29rem] mx-auto">
