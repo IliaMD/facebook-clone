@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -48,13 +50,14 @@ export const CreatePost = () => {
         const imagePath = ref(storage, `/posts/${docRef.id}/image`);
 
         if (image) {
-          await updateDoc(doc(db, "posts", docRef.id), {
+          updateDoc(doc(db, "posts", docRef.id), {
             haveMedia: true,
           });
-          await uploadString(imagePath, image, "data_url").then(async () => {
+
+          uploadString(imagePath, image, "data_url").then(async () => {
             const downloadUrl = await getDownloadURL(imagePath);
             if (downloadUrl) {
-              await updateDoc(doc(db, "posts", docRef.id), {
+              updateDoc(doc(db, "posts", docRef.id), {
                 image: downloadUrl,
                 isLoaded: false,
               });
@@ -63,13 +66,13 @@ export const CreatePost = () => {
         }
 
         if (video) {
-          await updateDoc(doc(db, "posts", docRef.id), {
+          updateDoc(doc(db, "posts", docRef.id), {
             haveMedia: true,
           });
-          await uploadString(imagePath, video, "data_url").then(async () => {
+          uploadString(imagePath, video, "data_url").then(async () => {
             const downloadUrl = await getDownloadURL(imagePath);
             if (downloadUrl) {
-              await updateDoc(doc(db, "posts", docRef.id), {
+              updateDoc(doc(db, "posts", docRef.id), {
                 video: downloadUrl,
                 isLoaded: false,
               });
@@ -118,7 +121,7 @@ export const CreatePost = () => {
       <div className="mx-auto max-w-[25rem] sm:max-w-[29rem] bg-white rounded-[1rem]  ">
         <div className="mt-8 flex items-center w-full p-3 pt-4 relative">
           <div className="w-12 h-12 shrink-0">
-            <Image
+            <img
               src={session ? session.user.image : nouser.src}
               alt="user"
               className="rounded-full"
@@ -162,7 +165,7 @@ export const CreatePost = () => {
         <div className="flex justify-end mx-1">
           {image && (
             <div className="m-2 w-full h-full">
-              <Image
+              <img
                 src={image}
                 alt="your image"
                 className="max-w-[10rem] max-h-[10rem] w-full h-full shrink-0"
